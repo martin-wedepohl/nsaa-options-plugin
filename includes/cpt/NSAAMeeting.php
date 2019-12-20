@@ -70,73 +70,66 @@ class NSAAMeeting {
         return $meeting_data;
     }
 
-    public static function getMeetings($dow = '', $includedistrict = false) {
-        $args = [
-            'post_type' => self::$POST_TYPE,
-            'post_status' => 'publish',
-            'posts_per_page' => 9999,
-            'order' => 'ASC',
-        ];
-        if('' === $dow) {
-            $args['orderby'] = 'title';
-        }
-        $posts = \get_posts($args);
-        // $theposts = new \WP_Query($args);
-        // $posts = [];
-        // while($theposts->have_posts()) {
-        //     $theposts->the_post();
-        //     $posts[] = get_post();
-        // }
+    public static function getMeetings($dow = '', $includedistrict = false, $sortmode = 'city') {
+        global $wpdb;
+        $post_type = self::$POST_TYPE;
+        $query = $wpdb->prepare("SELECT ID FROM $wpdb->posts WHERE post_type=%s AND post_status='publish'", $post_type);
+        $posts = $wpdb->get_results($query);
 
         $meetings = [];
-        foreach($posts as $post) {
-            $meta = self::get_meeting_data($post->ID);
-            if('' === $dow) {
-                if('1' === $meta['isdistrict'] && false === $includedistrict) {
-                    continue;
-                }
-                $meetings[$post->ID] = $meta;
-                $meetings[$post->ID]['name'] = get_the_title($post->ID);
-                $meetings[$post->ID]['id'] = $post->ID;
-            } else {
-                if(in_array($dow, $meta['dow'])) {
+        # Check if there are any posts
+        if(isset($posts)) {
+            foreach($posts as $post) {
+                $id = $post->ID;
+                $meta = self::get_meeting_data($id);
+                if('' === $dow) {
                     if('1' === $meta['isdistrict'] && false === $includedistrict) {
                         continue;
                     }
-                    $meetings[$post->ID] = $meta;
-                    $meetings[$post->ID]['name'] = get_the_title($post->ID);
-                    $meetings[$post->ID]['id'] = $post->ID;
+                    $meetings[$id] = $meta;
+                    $meetings[$id]['name'] = get_the_title($id);
+                    $meetings[$id]['id'] = $id;
+                } else {
+                    if(in_array($dow, $meta['dow'])) {
+                        if('1' === $meta['isdistrict'] && false === $includedistrict) {
+                            continue;
+                        }
+                        $meetings[$id] = $meta;
+                        $meetings[$id]['name'] = get_the_title($id);
+                        $meetings[$id]['id'] = $id;
+                    }
                 }
             }
         }
 
         if('' !== $dow) {
-            usort( $meetings, [NSAAMeeting::class, 'sortByTime']);
+            usort( $meetings, [NSAAMeeting::class, (('city' === $sortmode) ? 'sortByCity' : 'sortByTime')]);
         }
 
         return $meetings;
     }
 
     public static function getDistrictMeetings() {
-        $args = [
-            'post_type' => self::$POST_TYPE,
-            'post_status' => 'publish',
-            'posts_per_page' => 9999,
-            'order' => 'ASC',
-        ];
-        $posts = \get_posts($args);
+        global $wpdb;
+        $post_type = self::$POST_TYPE;
+        $query = $wpdb->prepare("SELECT ID FROM $wpdb->posts WHERE post_type=%s AND post_status='publish'", $post_type);
+        $posts = $wpdb->get_results($query);
 
         $meetings = [];
-        foreach($posts as $post) {
-            $meta = self::get_meeting_data($post->ID);
-            if('1' === $meta['isdistrict']) {
-                $meetings[$post->ID] = $meta;
-                $meetings[$post->ID]['name'] = get_the_title($post->ID);
-                $meetings[$post->ID]['id'] = $post->ID;
+        # Check if there are any posts
+        if(isset($posts)) {
+            foreach($posts as $post) {
+                $id = $post->ID;
+                $meta = self::get_meeting_data($id);
+                if('1' === $meta['isdistrict']) {
+                    $meetings[$id] = $meta;
+                    $meetings[$id]['name'] = get_the_title($id);
+                    $meetings[$id]['id'] = $id;
+                }
             }
         }
 
-        usort( $meetings, [NSAAMeeting::class, 'sortByTime']);
+        usort( $meetings, [NSAAMeeting::class, 'sortByCity']);
 
         return $meetings;
     }
@@ -146,7 +139,7 @@ class NSAAMeeting {
      * Then by time
      * Then by name
      */
-    private static function sortByTime( $a, $b ) {
+    private static function sortByCity( $a, $b ) {
 
         if($a['city'] === $b['city']) {
             // Cities are equal sort by time
@@ -161,6 +154,31 @@ class NSAAMeeting {
         }
 
         return ($a['city'] <= $b['city']) ? -1 : 1;
+
+        //        return ($a["location"] <= $b["location"]) ? -1 : 1;
+    }
+
+    /**
+     * Sort by time
+     * Then by city
+     * Then by name
+     */
+    private static function sortByTime( $a, $b ) {
+
+        $time1 = strtotime($a['time']);
+        $time2 = strtotime($b['time']);
+
+        if($time1 === $time2) {
+            // Times are equal sort by city
+            if($a['city'] === $b['city']) {
+                // Cities are equal sort by name
+                return ($a['name'] <= $b['name']) ? -1 : 1;
+            } else {
+                return ($a['city'] <= $b['city']) ? -1 : 1;
+            }
+        }
+
+        return ($time1 <= $time2) ? -1 : 1;
 
         //        return ($a["location"] <= $b["location"]) ? -1 : 1;
     }

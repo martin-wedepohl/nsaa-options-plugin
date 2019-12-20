@@ -21,6 +21,7 @@ class NSAAShortcodes {
 
         add_shortcode( 'nsaa_get_meeting',           [new NSAAShortcodes, 'get_meeting'] );
         add_shortcode( 'nsaa_get_meetings',          [new NSAAShortcodes, 'get_meetings'] );
+        add_shortcode( 'nsaa_get_calendar',          [new NSAAShortcodes, 'get_calendar'] );
         add_shortcode( 'nsaa_get_district_meetings', [new NSAAShortcodes, 'get_district_meetings'] );
         add_shortcode( 'nsaa_get_legend',            [new NSAAShortcodes, 'get_legend'] );
         add_shortcode( 'nsaa_front_page_sections',   [new NSAAShortcodes, 'front_page_sections'] );
@@ -91,11 +92,6 @@ class NSAAShortcodes {
             ], $atts, 'nsaa_get_meeting'
         );
 
-        // The id is required
-        if('' === $atts['id']) {
-            return 'ERROR: No meeting found for post';
-        }
-
         // Get the title of the post
         $title = get_the_title( $atts['id'] );
 
@@ -162,6 +158,70 @@ class NSAAShortcodes {
     }
 
     /**
+     * Shortcode to return the information all the meetings for the next number of days
+     * which will default to 7 days
+     *         
+     * @param array $atts Attributes passed to the function
+     */
+    public function get_calendar( $atts ) {
+
+        do_action( 'nsaa_before_get_calendar' );
+
+        // Process the attributes
+        $atts = shortcode_atts(
+            [
+                'days' => 7,
+            ], $atts, 'nsaa_get_calendar'
+        );
+
+        $timezone = get_option('timezone_string');
+        date_default_timezone_set($timezone);
+        $dayofweek = date('w');
+
+        $cities = NSAACity::getCities();
+        $legends = NSAALegend::getLegends();
+
+        $html = '';
+        for($day = 0; $day < $atts['days']; $day++) {
+            $day_ts = strtotime("+ $day day");
+            $html .= '<h3>' . date('l F jS, Y', $day_ts) . '</h3>';
+            $dayofweek %= 7;
+            $meetings = NSAAMeeting::getMeetings($dayofweek, true, 'time');
+
+            $city = '';
+            foreach($meetings as $meeting) {
+                $city = ((isset( $cities[$meeting['city']] )) ? $cities[$meeting['city']] : '');
+                $legend_str = '';
+                foreach( $meeting['legend'] as $value ) {
+                    $legend_str .= $value . ',';
+                }
+                if( '' !== $legend_str ) {
+                    $legend_str = substr( $legend_str, 0, -1 );
+                    $legend_str = ' (' . $legend_str . ')';
+                }
+                $location = ('' === $meeting['location']) ? '' : $meeting['location'] . ', ';
+
+                $html .= '<p>' . $meeting['time'] . ' - <a href="' . esc_url( get_the_permalink( $meeting['id'] ) ) . '" title="Visit ' . $meeting['name'] . '">' . strtoupper( $meeting['name'] ) . '</a>' . $legend_str . '<br />';
+                $html .= $location . ' ' . $meeting['address'] . ', ' . $city . '<br />';
+                $html .= (('' === $meeting['additional']) ? '' : '<strong>' . nl2br($meeting['additional']) . '</strong><br />');
+            }
+
+            $dayofweek++;
+
+        }
+
+        //     $html .= '<p>' . $meeting['time'] . ' - <a href="' . esc_url( get_the_permalink( $meeting['id'] ) ) . '" title="Visit ' . $meeting['name'] . '">' . strtoupper( $meeting['name'] ) . '</a>' . $legend_str . '<br />';
+        //     $html .= $location . ' ' . $meeting['address'] . '<br />';
+        //     $html .= (('' === $meeting['additional']) ? '' : '<strong>' . nl2br($meeting['additional']) . '</strong><br />');
+        // }
+        
+        return $html;
+
+    }
+
+
+
+    /**
      * Shortcode to return the information all the meetings for a specific day
      *     [nsaa_get_meetings dow="DOW" includedistrict=false/true]
      *         DOW (required) - Day of week 0 (Sunday) - 6 (Saturday)
@@ -182,11 +242,6 @@ class NSAAShortcodes {
         );
 
         $atts['includedistrict'] = ('true' === $atts['includedistrict']) ? true : false;
-
-        // The id is required
-        if('' === $atts['dow']) {
-            return 'ERROR: No meetings found';
-        }
 
         $meetings = NSAAMeeting::getMeetings($atts['dow'], $atts['includedistrict']);
 
