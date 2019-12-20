@@ -16,8 +16,8 @@ North Shore AA Options Plugin is used to provide a set of options, custom post t
 This plugin doesn't store any user data
 
 ### Installation For Development
-1. Download/clone the plugin to a development directory on the website at the root level (same level as the /wp-content directory)
-1. From the command line in the newly created directory issue the following commands
+- Download/clone the plugin to a development directory on the website at the root level (same level as the /wp-content directory)
+- From the command line in the newly created directory issue the following commands
 ```
 npm install
 composer install
@@ -25,6 +25,10 @@ gulp watch
 ```
 - This will copy any changes made in the development directory to the /wp-content/plugins/nsaa-options-plugin directory
 - The plugin can be activated through the plugins page
+- If any new classes are added to the development area issue the following command
+```
+composer dump
+```
 
 ### Frequently Asked Questions
 
