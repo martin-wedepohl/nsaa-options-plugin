@@ -123,7 +123,7 @@ class NSAAMeeting {
         return $meetings;
     }
 
-    public static function getDistrictMeetings() {
+    public static function getDistrictMeetings($name = '') {
         global $wpdb;
         $post_type = self::$POST_TYPE;
         $query = $wpdb->prepare("SELECT ID FROM $wpdb->posts WHERE post_type=%s AND post_status='publish'", $post_type);
@@ -136,9 +136,17 @@ class NSAAMeeting {
                 $id = $post->ID;
                 $meta = self::get_meeting_data($id);
                 if('1' === $meta['isdistrict']) {
-                    $meetings[$id] = $meta;
-                    $meetings[$id]['name'] = get_the_title($id);
-                    $meetings[$id]['id'] = $id;
+                    if('' !== $name) {
+                        if($name === get_the_title($id)) {
+                            $meetings[$id] = $meta;
+                            $meetings[$id]['name'] = get_the_title($id);
+                            $meetings[$id]['id'] = $id;
+                        }
+                    } else {
+                        $meetings[$id] = $meta;
+                        $meetings[$id]['name'] = get_the_title($id);
+                        $meetings[$id]['id'] = $id;
+                    }
                 }
             }
         }

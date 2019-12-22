@@ -183,6 +183,7 @@ class NSAAShortcodes {
 
         $cities = NSAACity::getCities();
         $legends = NSAALegend::getLegends();
+        $cancelled = NSAACancelledMeetings::getCancelled();
 
         $html = '';
         for($day = 0; $day < $atts['days']; $day++) {
@@ -198,17 +199,29 @@ class NSAAShortcodes {
 
             $city = '';
             foreach($meetings as $meeting) {
-                $occursthismonth = true;
+                $occurs = true;
 
                 // Check if the meeting is held in this month
                 if(count($meeting['notheld']) > 0) {
                     if(true === in_array($month_num, $meeting['notheld'])) {
-                        $occursthismonth = false;
+                        $occurs = false;
                     }
                 }
-                
+
+                // Check if it is a cancelled meeting
+                if(true === $occurs) {
+                    foreach($cancelled as $cancel) {
+                        if(true === in_array($meeting['id'], $cancel)) {
+                            $cdate_ts = strtotime($cancel['cdate']);
+                            $cdate_str = date('l F jS, Y', $cdate_ts);
+                            if($cdate_str === $theday) {
+                                $occurs = false;
+                            }
+                        }
+                    }
+                }
                 // If monthly meeting see if it is occuring on this date
-                if(true === $occursthismonth && true === isset($meeting['monthly'])) {
+                if(true === $occurs && true === isset($meeting['monthly'])) {
                     $monthly = $meeting['monthly'];
                     switch($monthly) {
                         case 1:
@@ -235,12 +248,12 @@ class NSAAShortcodes {
                         $thismonth_ts = strtotime($thismonth_str);
                         $today_str = date('l F jS, Y', $thismonth_ts);
                         if($today_str !== $theday) {
-                            $occursthismonth = false;
+                            $occurs = false;
                         }
                     }
                 }
 
-                if($occursthismonth) {
+                if($occurs) {
 
                     $city = ((isset( $cities[$meeting['city']] )) ? $cities[$meeting['city']] : '');
                     $legend_str = '';
@@ -394,6 +407,11 @@ class NSAAShortcodes {
             ], $atts, 'nsaa_front_page_sections'
         );
 
+        $timezone = get_option('timezone_string');
+        date_default_timezone_set($timezone);
+        $month_num = date('n');
+        $year = date('Y');
+
         switch( $atts['id'] ) {
             case 'service-opportunities':
                 $html = '<ul>';
@@ -403,6 +421,27 @@ class NSAAShortcodes {
                     $html .= nl2br( $msg );
                 }
                 $html .= '</ul>';
+            break;
+            case 'cancelled-meetings':
+                $date = '';
+                $html = '<ul>';
+                $posts = NSAACancelledMeetings::getCancelled();
+                foreach($posts as $id => $post) {
+                    if($date !== $post['cdate']) {
+                        $date = date('l F jS', strtotime($post['cdate']));
+                        if('<ul>' === $html) {
+                            $html .= "<li>{$date}<ul>";
+                        } else {
+                            $html .= "</ul></li><li>{$date}<ul>";
+                        }
+                        $date = $post['cdate'];
+                    }
+                    $group = get_the_title($post['group']);
+                    $link = '<a href="' . esc_url( get_the_permalink( $post['group'] ) ) . '" title="Visit ' . $group. '">' . strtoupper( $group ) . '</a>';
+
+                    $html .= "<li>{$post['name']} - {$link}</li>";
+                }
+                $html .= '</ul></li></ul>';
             break;
             case 'group-cakes':
                 $date = '';
@@ -463,6 +502,55 @@ class NSAAShortcodes {
                 }
                 $html .= '</ul></li></ul>';
             break;
+            case 'district-meeting':
+
+                $meeting = NSAAMeeting::getDistrictMeetings('GSR Meeting');
+                $cities = NSAACity::getCities();
+                if(count($meeting) > 0) {
+                    $meeting = $meeting[0];
+                    $html = '';
+                    while(true === in_array($month_num, $meeting['notheld'])) {
+                        $year = (12 == $month_num) ? $year + 1 : $year;
+                        $month_num = (12 == $month_num) ? 1 : ($month_num + 1);
+                    }
+
+                    switch($month_num) {
+                        case '1':  $month = 'January';   break;
+                        case '2':  $month = 'February';  break;
+                        case '3':  $month = 'March';     break;
+                        case '4':  $month = 'April';     break;
+                        case '5':  $month = 'May';       break;
+                        case '6':  $month = 'June';      break;
+                        case '7':  $month = 'July';      break;
+                        case '8':  $month = 'August';    break;
+                        case '9':  $month = 'September'; break;
+                        case '10': $month = 'October';   break;
+                        case '11': $month = 'November';  break;
+                        case '12': $month = 'December';  break;
+                    }
+
+                    $dow       = NSAAMeeting::getDOW($meeting['dow']);
+                    $monthly   = $meeting['monthly'];
+                    switch($monthly) {
+                        case '1': $monthly_str = 'first '; break;
+                        case '2': $monthly_str = 'second '; break;
+                        case '3': $monthly_str = 'third '; break;
+                        case '4': $monthly_str = 'fourth '; break;
+                        case '5': $monthly_str = 'Last '; break;
+                        default: $monthly_str = '';
+                    }
+
+                    $meeting_date_str = strtolower("$monthly_str $dow $month $year");
+                    $meeting_date_ts = strtotime($meeting_date_str);
+                    $meeting_date = date('l F jS, Y', $meeting_date_ts);
+
+                    $location  = ('' === $meeting['location']) ? '' : $meeting['location'] . ', ';
+                    $html .= '<p>Next <a href="' . esc_url( get_the_permalink( $meeting['id'] ) ) . '" title="Visit ' . $meeting['name'] . '">' . strtoupper( $meeting['name'] ) . '</a> - ' . $meeting_date . '<br />';
+                    $html .= $location . ' ' . $meeting['address'] . ', ' . $cities[$meeting['city']] . '<br />';
+                    $html .= (('' === $meeting['additional']) ? '' : '<strong>' . nl2br($meeting['additional']) . '</strong><br />');
+                }
+            break;
+
             default:
                 $html = '';
         }
