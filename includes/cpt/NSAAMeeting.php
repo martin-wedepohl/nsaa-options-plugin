@@ -45,6 +45,7 @@ class NSAAMeeting {
                 'additional' => '',
                 'dow' => [],
                 'legend' => [],
+                'notheld' => [],
             ],
             $meeting_data,
             'get_meeting_data'
@@ -64,6 +65,11 @@ class NSAAMeeting {
         if(count($meeting_data['legend']) > 0) {
             foreach($meeting_data['legend'] as $id => $legend) {
                 $meeting_data['legend'][$id] = sanitize_text_field($legend);
+            }
+        }
+        if(count($meeting_data['notheld']) > 0) {
+            foreach($meeting_data['notheld'] as $id => $notheld) {
+                $meeting_data['notheld'][$id] = sanitize_text_field($notheld);
             }
         }
 
@@ -102,9 +108,17 @@ class NSAAMeeting {
             }
         }
 
-        if('' !== $dow) {
-            usort( $meetings, [NSAAMeeting::class, (('city' === $sortmode) ? 'sortByCity' : 'sortByTime')]);
+        switch($sortmode) {
+            case 'city':
+                $thesort = 'sortByCity';
+            break;
+            case 'name':
+                $thesort = 'sortByName';
+            break;
+            default:
+                $thesort = 'sortByTime';
         }
+        usort( $meetings, [NSAAMeeting::class, $thesort]);
 
         return $meetings;
     }
@@ -135,6 +149,29 @@ class NSAAMeeting {
     }
 
     /**
+     * Sort by name
+     * Then by time
+     * Then by city
+     */
+    private static function sortByname( $a, $b ) {
+
+        if($a['name'] === $b['name']) {
+            // Names are equal sort by time
+            $time1 = strtotime($a['time']);
+            $time2 = strtotime($b['time']);
+            if($time1 === $time2) {
+                // Times are equal sort by city
+                return ($a['city'] <= $b['city']) ? -1 : 1;
+            } else {
+                return ($time1 <= $time2) ? -1 : 1;
+            }
+        }
+
+        return ($a['name'] <= $b['name']) ? -1 : 1;
+
+    }
+
+    /**
      * Sort by city
      * Then by time
      * Then by name
@@ -155,7 +192,6 @@ class NSAAMeeting {
 
         return ($a['city'] <= $b['city']) ? -1 : 1;
 
-        //        return ($a["location"] <= $b["location"]) ? -1 : 1;
     }
 
     /**
@@ -180,7 +216,6 @@ class NSAAMeeting {
 
         return ($time1 <= $time2) ? -1 : 1;
 
-        //        return ($a["location"] <= $b["location"]) ? -1 : 1;
     }
 
     public static function getDOW($dow, $short = false) {
@@ -346,13 +381,13 @@ class NSAAMeeting {
         <br /><br />
 
         <label for="dow">Meeting Day <small>(required)</small>: </label><br />
-        <input type="checkbox" id="dow" name="dow[]" value="0" <?php echo (in_array('0', $meeting_data['dow']) ? 'checked' : ''); ?>> Sun<br />
-        <input type="checkbox" id="dow" name="dow[]" value="1" <?php echo (in_array('1', $meeting_data['dow']) ? 'checked' : ''); ?>> Mon<br />
-        <input type="checkbox" id="dow" name="dow[]" value="2" <?php echo (in_array('2', $meeting_data['dow']) ? 'checked' : ''); ?>> Tue<br />
-        <input type="checkbox" id="dow" name="dow[]" value="3" <?php echo (in_array('3', $meeting_data['dow']) ? 'checked' : ''); ?>> Wed<br />
-        <input type="checkbox" id="dow" name="dow[]" value="4" <?php echo (in_array('4', $meeting_data['dow']) ? 'checked' : ''); ?>> Thu<br />
-        <input type="checkbox" id="dow" name="dow[]" value="5" <?php echo (in_array('5', $meeting_data['dow']) ? 'checked' : ''); ?>> Fri<br />
-        <input type="checkbox" id="dow" name="dow[]" value="6" <?php echo (in_array('6', $meeting_data['dow']) ? 'checked' : ''); ?>> Sat<br />
+        <input type="checkbox" id="dow0" name="dow[]" value="0" <?php echo (in_array('0', $meeting_data['dow']) ? 'checked' : ''); ?>> Sun<br />
+        <input type="checkbox" id="dow1" name="dow[]" value="1" <?php echo (in_array('1', $meeting_data['dow']) ? 'checked' : ''); ?>> Mon<br />
+        <input type="checkbox" id="dow2" name="dow[]" value="2" <?php echo (in_array('2', $meeting_data['dow']) ? 'checked' : ''); ?>> Tue<br />
+        <input type="checkbox" id="dow3" name="dow[]" value="3" <?php echo (in_array('3', $meeting_data['dow']) ? 'checked' : ''); ?>> Wed<br />
+        <input type="checkbox" id="dow4" name="dow[]" value="4" <?php echo (in_array('4', $meeting_data['dow']) ? 'checked' : ''); ?>> Thu<br />
+        <input type="checkbox" id="dow5" name="dow[]" value="5" <?php echo (in_array('5', $meeting_data['dow']) ? 'checked' : ''); ?>> Fri<br />
+        <input type="checkbox" id="dow6" name="dow[]" value="6" <?php echo (in_array('6', $meeting_data['dow']) ? 'checked' : ''); ?>> Sat<br />
         <br />
 
         <label for="monthly">Monthly Repeat: </label><br />
@@ -365,6 +400,21 @@ class NSAAMeeting {
 
         <label for="time">Meeting Time <small>(required)</small>: </label>
         <input type="text" id="time" name="time" required value="<?php echo ($meeting_data['time']); ?>" class="widefat time_picker" placeholder="Enter a meeting time" /><br /><br />
+
+        <label for="notheld">Not Held In Months: </label><br />
+        <input type="checkbox" id="notheld1"  name="notheld[]" value="1"  <?php echo (in_array('1',  $meeting_data['notheld']) ? 'checked' : ''); ?>> January<br />
+        <input type="checkbox" id="notheld2"  name="notheld[]" value="2"  <?php echo (in_array('2',  $meeting_data['notheld']) ? 'checked' : ''); ?>> February<br />
+        <input type="checkbox" id="notheld3"  name="notheld[]" value="3"  <?php echo (in_array('3',  $meeting_data['notheld']) ? 'checked' : ''); ?>> March<br />
+        <input type="checkbox" id="notheld4"  name="notheld[]" value="4"  <?php echo (in_array('4',  $meeting_data['notheld']) ? 'checked' : ''); ?>> April<br />
+        <input type="checkbox" id="notheld5"  name="notheld[]" value="5"  <?php echo (in_array('5',  $meeting_data['notheld']) ? 'checked' : ''); ?>> May<br />
+        <input type="checkbox" id="notheld6"  name="notheld[]" value="6"  <?php echo (in_array('6',  $meeting_data['notheld']) ? 'checked' : ''); ?>> June<br />
+        <input type="checkbox" id="notheld7"  name="notheld[]" value="7"  <?php echo (in_array('7',  $meeting_data['notheld']) ? 'checked' : ''); ?>> July<br />
+        <input type="checkbox" id="notheld8"  name="notheld[]" value="8"  <?php echo (in_array('8',  $meeting_data['notheld']) ? 'checked' : ''); ?>> August<br />
+        <input type="checkbox" id="notheld9"  name="notheld[]" value="9"  <?php echo (in_array('9',  $meeting_data['notheld']) ? 'checked' : ''); ?>> September<br />
+        <input type="checkbox" id="notheld10" name="notheld[]" value="10" <?php echo (in_array('10', $meeting_data['notheld']) ? 'checked' : ''); ?>> October<br />
+        <input type="checkbox" id="notheld11" name="notheld[]" value="11" <?php echo (in_array('11', $meeting_data['notheld']) ? 'checked' : ''); ?>> November<br />
+        <input type="checkbox" id="notheld12" name="notheld[]" value="12" <?php echo (in_array('12', $meeting_data['notheld']) ? 'checked' : ''); ?>> December<br />
+        <br />
 
         <label for="legend">
             Meeting Legend:
@@ -413,6 +463,15 @@ class NSAAMeeting {
         $meeting_meta['time'] = isset($_POST['time']) ? sanitize_text_field($_POST['time']) : '';
         $meeting_meta['monthly'] = isset($_POST['monthly']) ? sanitize_text_field($_POST['monthly']) : '';
         $meeting_meta['additional'] = isset($_POST['additional']) ? sanitize_textarea_field($_POST['additional']) : '';
+        if(isset($_POST['notheld'])) {
+            if(count($_POST['notheld']) > 0) {
+                $notheld = [];
+                foreach($_POST['notheld'] as $id => $value) {
+                    $notheld[$id] = sanitize_text_field($value);
+                }
+                $meeting_meta['notheld'] = $notheld;
+            }
+        }
         if(isset($_POST['legend'])) {
             if(count($_POST['legend']) > 0) {
                 $legends = [];

@@ -111,7 +111,7 @@ class NSAAGratitude {
         add_filter('manage_edit-' . self::$POST_TYPE . '_columns', [$this, 'table_head']);
         add_action('manage_' . self::$POST_TYPE . '_posts_custom_column', [$this, 'table_content'], 10, 2);
         if(!wp_next_scheduled( 'delete_gratitudes_schedule')){
-            wp_schedule_event(time(), 'hourly', 'delete_gratitudes_schedule');
+            wp_schedule_event(time(), 'daily', 'delete_gratitudes_schedule');
         }
         add_action('delete_gratitudes_schedule', [$this, 'delete_gratitudes']);
     }
@@ -313,13 +313,14 @@ class NSAAGratitude {
             foreach($results as $post) {
                 $id = $post->ID;
                 $meta = self::get_gratitude_data($id);
-                $date = $meta['date'] . ' 23:59:59';
-                $gratitude_date = \strtotime($date);
-                $today = \time();
-                if($today > $gratitude_date) {
-                    wp_delete_post( $id, true );
+                if(isset($meta['gdate'])) {
+                    $gdate = $meta['gdate'] . ' 23:59:59';
+                    $gratitude_date = \strtotime($gdate);
+                    $today = \time();
+                    if($today > $gratitude_date) {
+                        wp_delete_post( $id, true );
+                    }
                 }
-                
             }
         }
 

@@ -104,7 +104,7 @@ class NSAACake {
         add_filter('manage_edit-' . self::$POST_TYPE . '_columns', [$this, 'table_head']);
         add_action('manage_' . self::$POST_TYPE . '_posts_custom_column', [$this, 'table_content'], 10, 2);
         if(!wp_next_scheduled( 'delete_cakes_schedule')){
-            wp_schedule_event(time(), 'hourly', 'delete_cakes_schedule');
+            wp_schedule_event(time(), 'daily', 'delete_cakes_schedule');
         }
         add_action('delete_cakes_schedule', [$this, 'delete_cakes']);
     }
@@ -187,7 +187,7 @@ class NSAACake {
         $cake_data = self::get_cake_data($post->ID);
         // Get all the departments
 
-        $meetings = NSAAMeeting::getMeetings();
+        $meetings = NSAAMeeting::getMeetings('', false, 'name');
 
         $select = '<select id="group" name="group" required>';
         foreach($meetings as $meeting) {

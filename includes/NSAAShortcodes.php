@@ -92,6 +92,9 @@ class NSAAShortcodes {
             ], $atts, 'nsaa_get_meeting'
         );
 
+        $timezone = get_option('timezone_string');
+        date_default_timezone_set($timezone);
+
         // Get the title of the post
         $title = get_the_title( $atts['id'] );
 
@@ -184,36 +187,82 @@ class NSAAShortcodes {
         $html = '';
         for($day = 0; $day < $atts['days']; $day++) {
             $day_ts = strtotime("+ $day day");
-            $html .= '<h3>' . date('l F jS, Y', $day_ts) . '</h3>';
+            $theday = date('l F jS, Y', $day_ts);
+            $day_str = date('l', $day_ts);
+            $month_str = date('F', $day_ts); 
+            $month_num = date('n', $day_ts);
+            $year_str = date('Y', $day_ts);
+            $html .= "<h3>$theday</h3>";
             $dayofweek %= 7;
             $meetings = NSAAMeeting::getMeetings($dayofweek, true, 'time');
 
             $city = '';
             foreach($meetings as $meeting) {
-                $city = ((isset( $cities[$meeting['city']] )) ? $cities[$meeting['city']] : '');
-                $legend_str = '';
-                foreach( $meeting['legend'] as $value ) {
-                    $legend_str .= $value . ',';
-                }
-                if( '' !== $legend_str ) {
-                    $legend_str = substr( $legend_str, 0, -1 );
-                    $legend_str = ' (' . $legend_str . ')';
-                }
-                $location = ('' === $meeting['location']) ? '' : $meeting['location'] . ', ';
+                $occursthismonth = true;
 
-                $html .= '<p>' . $meeting['time'] . ' - <a href="' . esc_url( get_the_permalink( $meeting['id'] ) ) . '" title="Visit ' . $meeting['name'] . '">' . strtoupper( $meeting['name'] ) . '</a>' . $legend_str . '<br />';
-                $html .= $location . ' ' . $meeting['address'] . ', ' . $city . '<br />';
-                $html .= (('' === $meeting['additional']) ? '' : '<strong>' . nl2br($meeting['additional']) . '</strong><br />');
+                // Check if the meeting is held in this month
+                if(count($meeting['notheld']) > 0) {
+                    if(true === in_array($month_num, $meeting['notheld'])) {
+                        $occursthismonth = false;
+                    }
+                }
+                
+                // If monthly meeting see if it is occuring on this date
+                if(true === $occursthismonth && true === isset($meeting['monthly'])) {
+                    $monthly = $meeting['monthly'];
+                    switch($monthly) {
+                        case 1:
+                            $monthly_str = 'first';
+                        break;
+                        case 2:
+                            $monthly_str = 'second';
+                        break;
+                        case 3:
+                            $monthly_str = 'third';
+                        break;
+                        case 4:
+                            $monthly_str = 'fourth';
+                        break;
+                        case 5:
+                            $monthly_str = 'last';
+                        break;
+                        default:
+                            $monthly_str = '';
+                    }
+                    if('' !== $monthly_str) {
+                        // Check for nth day of month year
+                        $thismonth_str = strtolower("$monthly_str $day_str of $month_str $year_str");
+                        $thismonth_ts = strtotime($thismonth_str);
+                        $today_str = date('l F jS, Y', $thismonth_ts);
+                        if($today_str !== $theday) {
+                            $occursthismonth = false;
+                        }
+                    }
+                }
+
+                if($occursthismonth) {
+
+                    $city = ((isset( $cities[$meeting['city']] )) ? $cities[$meeting['city']] : '');
+                    $legend_str = '';
+                    foreach( $meeting['legend'] as $value ) {
+                        $legend_str .= $value . ',';
+                    }
+                    if( '' !== $legend_str ) {
+                        $legend_str = substr( $legend_str, 0, -1 );
+                        $legend_str = ' (' . $legend_str . ')';
+                    }
+                    $location = ('' === $meeting['location']) ? '' : $meeting['location'] . ', ';
+
+                    $html .= '<p>' . $meeting['time'] . ' - <a href="' . esc_url( get_the_permalink( $meeting['id'] ) ) . '" title="Visit ' . $meeting['name'] . '">' . strtoupper( $meeting['name'] ) . '</a>' . $legend_str . '<br />';
+                    $html .= $location . ' ' . $meeting['address'] . ', ' . $city . '<br />';
+                    $html .= (('' === $meeting['additional']) ? '' : '<strong>' . nl2br($meeting['additional']) . '</strong><br />');
+
+                }
             }
 
             $dayofweek++;
 
         }
-
-        //     $html .= '<p>' . $meeting['time'] . ' - <a href="' . esc_url( get_the_permalink( $meeting['id'] ) ) . '" title="Visit ' . $meeting['name'] . '">' . strtoupper( $meeting['name'] ) . '</a>' . $legend_str . '<br />';
-        //     $html .= $location . ' ' . $meeting['address'] . '<br />';
-        //     $html .= (('' === $meeting['additional']) ? '' : '<strong>' . nl2br($meeting['additional']) . '</strong><br />');
-        // }
         
         return $html;
 
