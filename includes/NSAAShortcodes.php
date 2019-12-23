@@ -24,6 +24,7 @@ class NSAAShortcodes {
         add_shortcode( 'nsaa_get_calendar',          [new NSAAShortcodes, 'get_calendar'] );
         add_shortcode( 'nsaa_get_district_meetings', [new NSAAShortcodes, 'get_district_meetings'] );
         add_shortcode( 'nsaa_get_legend',            [new NSAAShortcodes, 'get_legend'] );
+        add_shortcode( 'nsaa_get_events',            [new NSAAShortcodes, 'get_events'] );
         add_shortcode( 'nsaa_front_page_sections',   [new NSAAShortcodes, 'front_page_sections'] );
 
     }
@@ -281,8 +282,6 @@ class NSAAShortcodes {
 
     }
 
-
-
     /**
      * Shortcode to return the information all the meetings for a specific day
      *     [nsaa_get_meetings dow="DOW" includedistrict=false/true]
@@ -398,6 +397,37 @@ class NSAAShortcodes {
 
     }
 
+    public function get_events() {
+
+        $date = '';
+        $html = '<ul>';
+        $posts = NSAAEvents::getEvents();
+        foreach($posts as $id => $post) {
+            if($date !== $post['sdate']) {
+                $date = date('l F jS', strtotime($post['sdate']));
+                if('<ul>' === $html) {
+                    $html .= "<li>{$date}<ul>";
+                } else {
+                    $html .= "</ul></li><li>{$date}<ul>";
+                }
+                $date = $post['sdate'];
+            }
+
+            $html .= "<li><strong>{$post['title']}</strong><br />";
+
+            $msg = "{$post['content']}";
+            $html .= nl2br( $msg ) . '</li>';
+
+            if(!empty($post['thumbnail'])) {
+                $html .= '<a href="' . esc_url($post['thumbnail_url']) . '" rel="lightbox" title="View Larger Image">' . $post['thumbnail'] . '</a>';
+            }
+        }
+        $html .= '</ul></li></ul>';
+
+        return $html;
+
+    }
+
     public function front_page_sections( $atts ) {
 
         // Process the attributes
@@ -422,6 +452,9 @@ class NSAAShortcodes {
                     $html .= nl2br( $msg );
                 }
                 $html .= '</ul>';
+                if('<ul></ul>' === $html) {
+                    $html = '';
+                }
             break;
             case 'meeting-changes':
                 $html = '<ul>';
@@ -432,6 +465,9 @@ class NSAAShortcodes {
                     $html .= nl2br( $msg );
                 }
                 $html .= '</ul>';
+                if('<ul></ul>' === $html) {
+                    $html = '';
+                }
             break;
             case 'cancelled-meetings':
                 $date = '';
@@ -453,6 +489,9 @@ class NSAAShortcodes {
                     $html .= "<li>{$post['name']} - {$link}</li>";
                 }
                 $html .= '</ul></li></ul>';
+                if('<ul></ul></li></ul>' === $html) {
+                    $html = '';
+                }
             break;
             case 'group-cakes':
                 $date = '';
@@ -482,6 +521,9 @@ class NSAAShortcodes {
                     $html .= "<li>{$post['name']} - {$milestone} - {$link}</li>";
                 }
                 $html .= '</ul></li></ul>';
+                if('<ul></ul></li></ul>' === $html) {
+                    $html = '';
+                }
             break;
             case 'gratitude-nights':
                 $date = '';
@@ -512,14 +554,46 @@ class NSAAShortcodes {
                     }
                 }
                 $html .= '</ul></li></ul>';
+                if('<ul></ul></li></ul>' === $html) {
+                    $html = '';
+                }
+            break;
+            case 'events':
+                $date = '';
+                $html = '<ul>';
+                $posts = NSAAEvents::getEvents();
+                foreach($posts as $id => $post) {
+                    if($date !== $post['sdate']) {
+                        $date = date('l F jS', strtotime($post['sdate']));
+                        if('<ul>' === $html) {
+                            $html .= "<li>{$date}<ul>";
+                        } else {
+                            $html .= "</ul></li><li>{$date}<ul>";
+                        }
+                        $date = $post['sdate'];
+                    }
+
+                    $html .= "<li><strong>{$post['title']}</strong><br />";
+
+                    $msg = "{$post['content']}";
+                    $html .= nl2br( $msg ) . '</li>';
+
+                    if(!empty($post['thumbnail'])) {
+                        $html .= '<a href="' . esc_url($post['thumbnail_url']) . '" rel="lightbox" title="View Larger Image">' . $post['thumbnail'] . '</a>';
+                    }
+                }
+                $html .= '</ul></li></ul>';
+                if('<ul></ul></li></ul>' === $html) {
+                    $html = '';
+                }
             break;
             case 'district-meeting':
 
                 $meeting = NSAAMeeting::getDistrictMeetings('GSR Meeting');
                 $cities = NSAACity::getCities();
+                $html = '';
                 if(count($meeting) > 0) {
                     $meeting = $meeting[0];
-                    $html = '';
                     while(true === in_array($month_num, $meeting['notheld'])) {
                         $year = (12 == $month_num) ? $year + 1 : $year;
                         $month_num = (12 == $month_num) ? 1 : ($month_num + 1);
@@ -572,6 +646,9 @@ class NSAAShortcodes {
                     $html .= "<li>{$bdate} - {$group}</li>";
                 }
                 $html .= '</ul>';
+                if('<ul></ul>' === $html) {
+                    $html = '';
+                }
             break;
 
             default:
@@ -582,7 +659,7 @@ class NSAAShortcodes {
         if( '' === $html ) {
             // Ensure that there is a id to hide
             if( '' !== $atts['id'] ) {
-//                $html = '<span class="hide-nsaa-section" data-id="' . $atts['id'] . '"></span>';
+                $html = '<span class="hide-nsaa-section" data-id="' . $atts['id'] . '"></span>';
                 return $html;
             }
             return $html;

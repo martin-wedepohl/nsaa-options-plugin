@@ -158,11 +158,11 @@ class NSAAGratitude {
         }
         $args = [
             'labels' => $labels,
-            'public' => true,
+            'public' => false,
             'publicly_queryable' => true,
             'show_ui' => true,
             'show_in_menu' => NSAAConfig::PLUGIN_PAGE,
-            'show_in_rest' => true,
+            'show_in_rest' => false,
             'query_var' => false,
             'rewrite' => ['slug' => 'gratitude', 'with_front' => false],
             'capability_type' => 'post',
@@ -194,7 +194,7 @@ class NSAAGratitude {
         $meta = self::get_gratitude_data($post->ID);
         // Get all the departments
 
-        $meetings = NSAAMeeting::getMeetings();
+        $meetings = NSAAMeeting::getMeetings('', false, 'name');
 
         $select = '<select id="group" name="group" required>';
         foreach($meetings as $meeting) {

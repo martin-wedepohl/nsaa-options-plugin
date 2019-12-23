@@ -330,7 +330,7 @@ class NSAAMeeting {
             'publicly_queryable' => true,
             'show_ui' => true,
             'show_in_menu' => NSAAConfig::PLUGIN_PAGE,
-            'show_in_rest' => true,
+            'show_in_rest' => false,
             'query_var' => false,
             'rewrite' => ['slug' => 'meeting', 'with_front' => false],
             'capability_type' => 'post',

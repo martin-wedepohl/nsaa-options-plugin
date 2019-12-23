@@ -103,6 +103,7 @@ class NSAAOptions {
         new NSAABreakfastMeetings();
         new NSAACake();
         new NSAACancelledMeetings();
+        new NSAAEvents();
         new NSAAGratitude();
         new NSAAMeetingChanges();
         new NSAAServiceOp();
