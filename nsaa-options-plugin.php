@@ -100,11 +100,12 @@ class NSAAOptions {
         $this->_settings->register();
         $this->_meeting = new NSAAMeeting();
         NSAAShortcodes::initShortcodes();
-        new NSAAServiceOp();
-        new NSAACake();
-        new NSAAGratitude();
-        new NSAACancelledMeetings();
         new NSAABreakfastMeetings();
+        new NSAACake();
+        new NSAACancelledMeetings();
+        new NSAAGratitude();
+        new NSAAMeetingChanges();
+        new NSAAServiceOp();
     }
 
     function my_post_layout_class( $class ) {

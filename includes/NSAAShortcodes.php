@@ -417,7 +417,18 @@ class NSAAShortcodes {
                 $html = '<ul>';
                 $posts = NSAAServiceOp::getServiceOps();
                 foreach( $posts as $id => $post ) {
-                    $msg = "<li>{$post['content']}</li>";
+                    $msg = "<li><div><strong>{$post['title']}</strong></div>";
+                    $msg .= "{$post['content']}</li>";
+                    $html .= nl2br( $msg );
+                }
+                $html .= '</ul>';
+            break;
+            case 'meeting-changes':
+                $html = '<ul>';
+                $posts = NSAAMeetingChanges::getMeetingChanges();
+                foreach( $posts as $id => $post ) {
+                    $msg = "<li><div><strong>{$post['title']}</strong></div>";
+                    $msg .= "{$post['content']}</li>";
                     $html .= nl2br( $msg );
                 }
                 $html .= '</ul>';
