@@ -104,6 +104,7 @@ class NSAAOptions {
         new NSAACake();
         new NSAAGratitude();
         new NSAACancelledMeetings();
+        new NSAABreakfastMeetings();
     }
 
     function my_post_layout_class( $class ) {

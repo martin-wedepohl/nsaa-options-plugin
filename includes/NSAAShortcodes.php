@@ -551,6 +551,18 @@ class NSAAShortcodes {
                 }
             break;
 
+            case 'sunday-morning-breakfast-meeting':
+                $posts = NSAABreakfastMeetings::getBreakfasts();
+                $html = '<ul>';
+                foreach( $posts as $id => $post ) {
+                    $bdate_ts = strtotime($post['bdate']);
+                    $bdate = date('F Y', $bdate_ts);
+                    $group = get_the_title($post['group']);
+                    $html .= "<li>{$bdate} - {$group}</li>";
+                }
+                $html .= '</ul>';
+            break;
+
             default:
                 $html = '';
         }
