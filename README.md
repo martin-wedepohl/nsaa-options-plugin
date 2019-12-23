@@ -5,7 +5,7 @@
 * Tags: options, wedepohl engineering
 * Requires at least: 4.7 or higher
 * Tested up to: 5.3.2
-* Stable tag: 0.1.1
+* Stable tag: 0.1.2
 * License: [GPLv3 or later](https://www.gnu.org/licenses/gpl-3.0.html)
 
 ### Description
@@ -34,6 +34,14 @@ composer dump
 ### Screenshots
 
 ### Changelog
+
+###### 0.1.2 2019-12-22
+* Added Breakfast Meetings
+* Added Cancelled Meetings
+* Added Events
+* Added Changed Meetings
+* Changed crons from hourly to daily
+* Bumped version to 0.1.2
 
 ###### 0.1.1 2019-12-19
 * Added calendar shortcode
