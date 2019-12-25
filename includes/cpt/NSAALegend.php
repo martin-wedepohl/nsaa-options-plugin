@@ -70,6 +70,20 @@ class NSAALegend {
 
     }
 
+    public static function getServiceLegend( $service_name = 'Service Meeting' ) {
+
+        $legendId = false;
+        $legends = NSAALegend::getLegends();
+
+        foreach($legends as $id => $value) {
+            if($value['name'] === $service_name) {
+                return $id;
+            }
+        }
+
+        return $legendId;
+    }
+
     /**
      * Class constructor 
      * 

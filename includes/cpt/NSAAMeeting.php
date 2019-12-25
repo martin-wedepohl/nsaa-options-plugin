@@ -18,6 +18,18 @@ class NSAAMeeting {
     private static $_cities;
     private static $_legends;
     
+    public static function findIdInArray($needle, $haystack) {
+
+        foreach($haystack as $value) {
+            if($needle === $value) {
+                return true;
+            }
+        }
+
+        return false;
+
+    }
+
     /**
      * Get all the meeting meta data for the post id
      * 
@@ -36,7 +48,6 @@ class NSAAMeeting {
         }
         $meeting_data = shortcode_atts(
             [
-                'isdistrict' => '',
                 'address' => '',
                 'location' => '',
                 'city' => '',
@@ -50,7 +61,6 @@ class NSAAMeeting {
             $meeting_data,
             'get_meeting_data'
         );
-        $meeting_data['isdistrict'] = sanitize_text_field($meeting_data['isdistrict']);
         $meeting_data['address'] = sanitize_text_field($meeting_data['address']);
         $meeting_data['location'] = sanitize_text_field($meeting_data['location']);
         $meeting_data['city'] = sanitize_text_field($meeting_data['city']);
@@ -76,11 +86,13 @@ class NSAAMeeting {
         return $meeting_data;
     }
 
-    public static function getMeetings($dow = '', $includedistrict = false, $sortmode = 'city') {
+    public static function getMeetings($dow = '', $includeservice = false, $sortmode = 'city') {
         global $wpdb;
         $post_type = self::$POST_TYPE;
         $query = $wpdb->prepare("SELECT ID FROM $wpdb->posts WHERE post_type=%s AND post_status='publish'", $post_type);
         $posts = $wpdb->get_results($query);
+
+        $legendId = NSAALegend::getServiceLegend();
 
         $meetings = [];
         # Check if there are any posts
@@ -89,7 +101,7 @@ class NSAAMeeting {
                 $id = $post->ID;
                 $meta = self::get_meeting_data($id);
                 if('' === $dow) {
-                    if('1' === $meta['isdistrict'] && false === $includedistrict) {
+                    if(true === NSAAMeeting::findIdInArray($legendId, $meta['legend']) && false === $includeservice) {
                         continue;
                     }
                     $meetings[$id] = $meta;
@@ -97,8 +109,8 @@ class NSAAMeeting {
                     $meetings[$id]['id'] = $id;
                 } else {
                     if(in_array($dow, $meta['dow'])) {
-                        if('1' === $meta['isdistrict'] && false === $includedistrict) {
-                            continue;
+                        if(true === NSAAMeeting::findIdInArray($legendId, $meta['legend']) && false === $includeservice) {
+                        continue;
                         }
                         $meetings[$id] = $meta;
                         $meetings[$id]['name'] = get_the_title($id);
@@ -123,11 +135,13 @@ class NSAAMeeting {
         return $meetings;
     }
 
-    public static function getDistrictMeetings($name = '') {
+    public static function getServiceMeetings($name = '') {
         global $wpdb;
         $post_type = self::$POST_TYPE;
         $query = $wpdb->prepare("SELECT ID FROM $wpdb->posts WHERE post_type=%s AND post_status='publish'", $post_type);
         $posts = $wpdb->get_results($query);
+
+        $legendId = NSAALegend::getServiceLegend();
 
         $meetings = [];
         # Check if there are any posts
@@ -135,7 +149,7 @@ class NSAAMeeting {
             foreach($posts as $post) {
                 $id = $post->ID;
                 $meta = self::get_meeting_data($id);
-                if('1' === $meta['isdistrict']) {
+                if(true === NSAAMeeting::findIdInArray($legendId, $meta['legend'])) {
                     if('' !== $name) {
                         if($name === get_the_title($id)) {
                             $meetings[$id] = $meta;
@@ -362,10 +376,6 @@ class NSAAMeeting {
         $meeting_data = self::get_meeting_data($post->ID);
         // Get all the departments
         ?>
-        <input type="checkbox" id="isdistrict" name="isdistrict" value="1" <?php echo (('1' === $meeting_data['isdistrict']) ? 'checked' : ''); ?>> 
-        Is District Meeting?
-        <br /><br />
-
         <label for="location">Location: </label>
         <input type="text" id="location" name="location" value="<?php echo ($meeting_data['location']); ?>" class="widefat", placeholder='Church/AlAno Club/Etc.'><br /><br />
 
@@ -464,7 +474,6 @@ class NSAAMeeting {
         // Now that we're authenticated, time to save the data.
         // This sanitizes the data from the field and saves it into an array $events_meta.
         $meeting_meta = [];
-        $meeting_meta['isdistrict'] = isset($_POST['isdistrict']) ? sanitize_text_field($_POST['isdistrict']) : '';
         $meeting_meta['location'] = isset($_POST['location']) ? sanitize_text_field($_POST['location']) : '';
         $meeting_meta['address'] = isset($_POST['address']) ? sanitize_text_field($_POST['address']) : '';
         $meeting_meta['city'] = isset($_POST['city']) ? sanitize_text_field($_POST['city']) : '';
@@ -620,7 +629,6 @@ class NSAAMeeting {
         $newcols['dow'] = __('Meeting Day', NSAAConfig::TEXT_DOMAIN);
         $newcols['time'] = __('Meeting Time', NSAAConfig::TEXT_DOMAIN);
         $newcols['legend'] = __('Meeting Legend', NSAAConfig::TEXT_DOMAIN);
-        $newcols['isdistrict'] = __('District Meeting', NSAAConfig::TEXT_DOMAIN);
         // Want date last.
         unset($columns['date']);
         // Add all other selected columns.
@@ -671,12 +679,6 @@ class NSAAMeeting {
                 }
             }
             echo $legend;
-        } else if('isdistrict' === $column_name) {
-            if(isset($meeting_data['isdistrict'])) {
-                if('1' === $meeting_data['isdistrict']) {
-                    echo 'TRUE';
-                }
-            }
         }
     }
 }

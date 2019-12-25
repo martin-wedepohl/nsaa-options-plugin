@@ -159,7 +159,7 @@ class NSAAGratitude {
         $args = [
             'labels' => $labels,
             'public' => false,
-            'publicly_queryable' => true,
+            'publicly_queryable' => false,
             'show_ui' => true,
             'show_in_menu' => NSAAConfig::PLUGIN_PAGE,
             'show_in_rest' => false,

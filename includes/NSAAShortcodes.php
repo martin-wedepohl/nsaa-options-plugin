@@ -19,13 +19,13 @@ class NSAAShortcodes {
      */
     public static function initShortcodes() {
 
-        add_shortcode( 'nsaa_get_meeting',           [new NSAAShortcodes, 'get_meeting'] );
-        add_shortcode( 'nsaa_get_meetings',          [new NSAAShortcodes, 'get_meetings'] );
-        add_shortcode( 'nsaa_get_calendar',          [new NSAAShortcodes, 'get_calendar'] );
-        add_shortcode( 'nsaa_get_district_meetings', [new NSAAShortcodes, 'get_district_meetings'] );
-        add_shortcode( 'nsaa_get_legend',            [new NSAAShortcodes, 'get_legend'] );
-        add_shortcode( 'nsaa_get_events',            [new NSAAShortcodes, 'get_events'] );
-        add_shortcode( 'nsaa_front_page_sections',   [new NSAAShortcodes, 'front_page_sections'] );
+        add_shortcode( 'nsaa_get_meeting',          [new NSAAShortcodes, 'get_meeting'] );
+        add_shortcode( 'nsaa_get_meetings',         [new NSAAShortcodes, 'get_meetings'] );
+        add_shortcode( 'nsaa_get_calendar',         [new NSAAShortcodes, 'get_calendar'] );
+        add_shortcode( 'nsaa_get_service_meetings', [new NSAAShortcodes, 'get_service_meetings'] );
+        add_shortcode( 'nsaa_get_legend',           [new NSAAShortcodes, 'get_legend'] );
+        add_shortcode( 'nsaa_get_events',           [new NSAAShortcodes, 'get_events'] );
+        add_shortcode( 'nsaa_front_page_sections',  [new NSAAShortcodes, 'front_page_sections'] );
 
     }
 
@@ -174,7 +174,7 @@ class NSAAShortcodes {
         // Process the attributes
         $atts = shortcode_atts(
             [
-                'days' => 7,
+                'days' => 21,
             ], $atts, 'nsaa_get_calendar'
         );
 
@@ -284,9 +284,9 @@ class NSAAShortcodes {
 
     /**
      * Shortcode to return the information all the meetings for a specific day
-     *     [nsaa_get_meetings dow="DOW" includedistrict=false/true]
+     *     [nsaa_get_meetings dow="DOW" includeservice=false/true]
      *         DOW (required) - Day of week 0 (Sunday) - 6 (Saturday)
-     *         includedistrict - Include district meetings - Default false
+     *         includeservice - Include service meetings - Default false
      *         
      * @param array $atts Attributes passed to the function
      */
@@ -298,13 +298,13 @@ class NSAAShortcodes {
         $atts = shortcode_atts(
             [
                 'dow' => '',
-                'includedistrict' => 'false',
+                'includeservice' => 'false',
             ], $atts, 'nsaa_get_meetings'
         );
 
-        $atts['includedistrict'] = ('true' === $atts['includedistrict']) ? true : false;
+        $atts['includeservice'] = ('true' === $atts['includeservice']) ? true : false;
 
-        $meetings = NSAAMeeting::getMeetings($atts['dow'], $atts['includedistrict']);
+        $meetings = NSAAMeeting::getMeetings($atts['dow'], $atts['includeservice']);
 
         $cities = NSAACity::getCities();
         $legends = NSAALegend::getLegends();
@@ -337,11 +337,11 @@ class NSAAShortcodes {
 
     /**
      */
-    public function get_district_meetings() {
+    public function get_service_meetings() {
 
-        do_action( 'nsaa_before_get_district_meetings' );
+        do_action( 'nsaa_before_get_service_meetings' );
 
-        $meetings = NSAAMeeting::getDistrictMeetings();
+        $meetings = NSAAMeeting::getServiceMeetings();
         $cities = NSAACity::getCities();
 
         $html = '';
@@ -385,7 +385,7 @@ class NSAAShortcodes {
         foreach( $legends as $code => $legend ) {
             $html .= "<strong>{$code}</strong> - {$legend['name']}";
             if( '' !== $legend['additional'] ) {
-                $html .= " (<i>{$legend['additional']}</i>)";
+                $html .= " (<strong><i>{$legend['additional']}</i></strong>)";
             }
             $html .= ', ';
         }
@@ -456,6 +456,7 @@ class NSAAShortcodes {
                     $html = '';
                 }
             break;
+
             case 'meeting-changes':
                 $html = '<ul>';
                 $posts = NSAAMeetingChanges::getMeetingChanges();
@@ -469,6 +470,7 @@ class NSAAShortcodes {
                     $html = '';
                 }
             break;
+
             case 'cancelled-meetings':
                 $date = '';
                 $html = '<ul>';
@@ -493,6 +495,7 @@ class NSAAShortcodes {
                     $html = '';
                 }
             break;
+
             case 'group-cakes':
                 $date = '';
                 $html = '<ul>';
@@ -525,6 +528,7 @@ class NSAAShortcodes {
                     $html = '';
                 }
             break;
+
             case 'gratitude-nights':
                 $date = '';
                 $html = '<ul>';
@@ -558,6 +562,7 @@ class NSAAShortcodes {
                     $html = '';
                 }
             break;
+
             case 'events':
                 $date = '';
                 $html = '<ul>';
@@ -587,9 +592,25 @@ class NSAAShortcodes {
                     $html = '';
                 }
             break;
+
+            case 'sunday-morning-breakfast-meeting':
+                $posts = NSAABreakfastMeetings::getBreakfasts();
+                $html = '<ul>';
+                foreach( $posts as $id => $post ) {
+                    $bdate_ts = strtotime($post['bdate']);
+                    $bdate = date('F Y', $bdate_ts);
+                    $group = get_the_title($post['group']);
+                    $html .= "<li>{$bdate} - {$group}</li>";
+                }
+                $html .= '</ul>';
+                if('<ul></ul>' === $html) {
+                    $html = '';
+                }
+            break;
+
             case 'district-meeting':
 
-                $meeting = NSAAMeeting::getDistrictMeetings('GSR Meeting');
+                $meeting = NSAAMeeting::getServiceMeetings('GSR Meeting');
                 $cities = NSAACity::getCities();
                 $html = '';
                 if(count($meeting) > 0) {
@@ -633,21 +654,6 @@ class NSAAShortcodes {
                     $html .= '<p>Next <a href="' . esc_url( get_the_permalink( $meeting['id'] ) ) . '" title="Visit ' . $meeting['name'] . '">' . strtoupper( $meeting['name'] ) . '</a> - ' . $meeting_date . '<br />';
                     $html .= $location . ' ' . $meeting['address'] . ', ' . $cities[$meeting['city']] . '<br />';
                     $html .= (('' === $meeting['additional']) ? '' : '<strong>' . nl2br($meeting['additional']) . '</strong><br />');
-                }
-            break;
-
-            case 'sunday-morning-breakfast-meeting':
-                $posts = NSAABreakfastMeetings::getBreakfasts();
-                $html = '<ul>';
-                foreach( $posts as $id => $post ) {
-                    $bdate_ts = strtotime($post['bdate']);
-                    $bdate = date('F Y', $bdate_ts);
-                    $group = get_the_title($post['group']);
-                    $html .= "<li>{$bdate} - {$group}</li>";
-                }
-                $html .= '</ul>';
-                if('<ul></ul>' === $html) {
-                    $html = '';
                 }
             break;
 

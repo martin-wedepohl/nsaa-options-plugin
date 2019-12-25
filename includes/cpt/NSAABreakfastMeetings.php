@@ -143,8 +143,8 @@ class NSAABreakfastMeetings {
         }
         $args = [
             'labels' => $labels,
-            'public' => true,
-            'publicly_queryable' => true,
+            'public' => false,
+            'publicly_queryable' => false,
             'show_ui' => true,
             'show_in_menu' => NSAAConfig::PLUGIN_PAGE,
             'show_in_rest' => true,
