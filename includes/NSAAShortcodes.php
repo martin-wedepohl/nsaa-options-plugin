@@ -509,6 +509,31 @@ class NSAAShortcodes {
                 }
             break;
 
+            case 'added-meetings':
+                $date = '';
+                $html = '<ul>';
+                $posts = NSAAAddedMeetings::getAdded();
+                foreach($posts as $id => $post) {
+                    if($date !== $post['adate']) {
+                        $date = date('l F jS', strtotime($post['adate']));
+                        if('<ul>' === $html) {
+                            $html .= "<li>{$date}<ul>";
+                        } else {
+                            $html .= "</ul></li><li>{$date}<ul>";
+                        }
+                        $date = $post['adate'];
+                    }
+                    $group = get_the_title($post['group']);
+                    $link = '<a href="' . esc_url( get_the_permalink( $post['group'] ) ) . '" title="Visit ' . $group. '">' . strtoupper( $group ) . '</a>';
+
+                    $html .= "<li>{$post['name']} - {$link}</li>";
+                }
+                $html .= '</ul></li></ul>';
+                if('<ul></ul></li></ul>' === $html) {
+                    $html = '';
+                }
+            break;
+
             case 'group-cakes':
                 $date = '';
                 $html = '<ul>';
