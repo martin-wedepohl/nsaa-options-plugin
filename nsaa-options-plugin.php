@@ -151,12 +151,14 @@ class NSAAOptions {
 //            wp_enqueue_script('instructions', plugins_url('dist/js/instructions.min.js', __FILE__), [], NSAAConfig::VERSION, true);
             wp_enqueue_style( 'instructions', plugins_url( 'dist/css/instructions.min.css', __FILE__ ), null, NSAAConfig::VERSION );
         }
+        
         wp_enqueue_style( 'jquery-ui', plugins_url( 'assets/css/jquery-ui.min.css', __FILE__ ), null, NSAAConfig::VERSION );
-        wp_enqueue_style( 'timepicker', plugins_url( 'assets/css/jquery.timepicker.min.css', __FILE__ ), null, NSAAConfig::VERSION );
-        wp_enqueue_script( 'jquery-ui-datepicker' );
-        wp_enqueue_script( 'timepicker', plugins_url( 'assets/js/jquery.timepicker.min.js', __FILE__ ), ['jquery'], NSAAConfig::VERSION, true );
-
+        wp_enqueue_style( 'timepicker', plugins_url( 'assets/css/jquery-ui-timepicker-addon.min.css', __FILE__ ), null, NSAAConfig::VERSION );
         wp_enqueue_style( 'nsaa-options', plugins_url( 'dist/css/style.min.css', __FILE__ ), null, NSAAConfig::VERSION );
+
+        wp_enqueue_script( 'jquery-ui-datepicker' );
+        wp_dequeue_script( 'timepicker' );
+        wp_enqueue_script( 'timepicker', plugins_url( 'assets/js/jquery-ui-timepicker-addon.min.js', __FILE__ ), ['jquery'], NSAAConfig::VERSION, true );
         wp_enqueue_script( 'nsaa-options', plugins_url( 'dist/js/scripts.min.js', __FILE__ ), [], NSAAConfig::VERSION, true );
 
     }
