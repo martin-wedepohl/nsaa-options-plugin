@@ -100,6 +100,7 @@ class NSAAOptions {
         $this->_settings->register();
         $this->_meeting = new NSAAMeeting();
         NSAAShortcodes::initShortcodes();
+        new NSAAAddedMeetings();
         new NSAABreakfastMeetings();
         new NSAACake();
         new NSAACancelledMeetings();

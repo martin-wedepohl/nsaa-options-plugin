@@ -174,7 +174,7 @@ class NSAAShortcodes {
         // Process the attributes
         $atts = shortcode_atts(
             [
-                'days' => 21,
+                'days' => 7,
             ], $atts, 'nsaa_get_calendar'
         );
 
@@ -185,6 +185,7 @@ class NSAAShortcodes {
         $cities = NSAACity::getCities();
         $legends = NSAALegend::getLegends();
         $cancelled = NSAACancelledMeetings::getCancelled();
+        $added = NSAAAddedMeetings::getAdded();
 
         $html = '';
         for($day = 0; $day < $atts['days']; $day++) {
@@ -221,6 +222,7 @@ class NSAAShortcodes {
                         }
                     }
                 }
+
                 // If monthly meeting see if it is occuring on this date
                 if(true === $occurs && true === isset($meeting['monthly'])) {
                     $monthly = $meeting['monthly'];
@@ -254,6 +256,17 @@ class NSAAShortcodes {
                     }
                 }
 
+                // Check if it is an added meeting
+                foreach($added as $add) {
+                    if(true === in_array($meeting['id'], $add)) {
+                        $adate_ts = strtotime($add['adate']);
+                        $adate_str = date('l F jS, Y', $adate_ts);
+                        if($adate_str === $theday) {
+                            $occurs = true;
+                        }
+                    }
+                }
+                
                 if($occurs) {
 
                     $city = ((isset( $cities[$meeting['city']] )) ? $cities[$meeting['city']] : '');
