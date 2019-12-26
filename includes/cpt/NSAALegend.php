@@ -159,7 +159,7 @@ class NSAALegend {
      * Add the meta box to the custom post type
      */
     public function register_meta_box() {
-        add_meta_box('information_section', __('Legend Information', NSAAConfig::TEXT_DOMAIN), [$this, 'meta_box'], self::$POST_TYPE, 'side', 'high');
+        add_meta_box('information_section', __('Legend Information', NSAAConfig::TEXT_DOMAIN), [$this, 'meta_box'], self::$POST_TYPE, 'advanced', 'high');
     }
     /**
      * Display the meta box

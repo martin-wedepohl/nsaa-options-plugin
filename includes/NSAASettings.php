@@ -61,6 +61,61 @@ class NSAASettings {
         return $menu_order;
     }
     public function setup_settings() {
+        add_settings_section( 'autodelete_section', __( 'Auto Delete', NSAAConfig::TEXT_DOMAIN ), null, NSAAConfig::PLUGIN_PAGE );
+        $fields = [
+            [
+                'uid' => 'auto_delete_added',
+                'label' => __( 'Auto Delete Added Meetings: ', NSAAConfig::TEXT_DOMAIN ),
+                'section' => 'autodelete_section',
+                'type' => 'checkbox',
+                'options' => [ '1' => 'Yes' ],
+                'class' => '',
+            ],
+            [
+                'uid' => 'auto_delete_breakfast',
+                'label' => __( 'Auto Delete Breakfast Meetings: ', NSAAConfig::TEXT_DOMAIN ),
+                'section' => 'autodelete_section',
+                'type' => 'checkbox',
+                'options' => [ '1' => 'Yes' ],
+                'class' => '',
+            ],
+            [
+                'uid' => 'auto_delete_cake',
+                'label' => __( 'Auto Delete Cakes: ', NSAAConfig::TEXT_DOMAIN ),
+                'section' => 'autodelete_section',
+                'type' => 'checkbox',
+                'options' => [ '1' => 'Yes' ],
+                'class' => '',
+            ],
+            [
+                'uid' => 'auto_delete_cancelled',
+                'label' => __( 'Auto Delete Cancelled Meetings: ', NSAAConfig::TEXT_DOMAIN ),
+                'section' => 'autodelete_section',
+                'type' => 'checkbox',
+                'options' => [ '1' => 'Yes' ],
+                'class' => '',
+            ],
+            [
+                'uid' => 'auto_delete_events',
+                'label' => __( 'Auto Delete Events: ', NSAAConfig::TEXT_DOMAIN ),
+                'section' => 'autodelete_section',
+                'type' => 'checkbox',
+                'options' => [ '1' => 'Yes' ],
+                'class' => '',
+            ],
+            [
+                'uid' => 'auto_delete_gratitudes',
+                'label' => __( 'Auto Delete Gratitude Meetings: ', NSAAConfig::TEXT_DOMAIN ),
+                'section' => 'autodelete_section',
+                'type' => 'checkbox',
+                'options' => [ '1' => 'Yes' ],
+                'class' => '',
+            ],
+        ];
+        foreach ( $fields as $field ) {
+            add_settings_field( $field[ 'uid' ], $field[ 'label' ], [ $this, 'field_callback' ], NSAAConfig::PLUGIN_PAGE, $field[ 'section' ], $field );
+        }
+
         add_settings_section( 'features_section', __( 'Features', NSAAConfig::TEXT_DOMAIN ), null, NSAAConfig::PLUGIN_PAGE );
         $fields = [
             [

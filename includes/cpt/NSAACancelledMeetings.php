@@ -95,10 +95,17 @@ class NSAACancelledMeetings {
         add_action('save_post', [$this, 'save_meta'], 1, 2);
         add_filter('manage_edit-' . self::$POST_TYPE . '_columns', [$this, 'table_head']);
         add_action('manage_' . self::$POST_TYPE . '_posts_custom_column', [$this, 'table_content'], 10, 2);
-        if(!wp_next_scheduled( 'delete_cancelled_schedule')){
-            wp_schedule_event(time(), 'daily', 'delete_cancelled_schedule');
+        $settings = new NSAASettings();
+        $delete_cron = $settings->get_options('auto_delete_cancelled');
+        if('1' === $delete_cron) {
+            if(!wp_next_scheduled( 'delete_cancelled_schedule')){
+                wp_schedule_event(time(), 'daily', 'delete_cancelled_schedule');
+            }
+            add_action('delete_cancelled_schedule', [$this, 'delete_cancelled']);
+        } else {
+            wp_clear_scheduled_hook('delete_cancelled_schedule');
+            remove_action('delete_cancelled_schedule', [$this, 'delete_cancelled']);
         }
-        add_action('delete_cancelled_schedule', [$this, 'delete_cancelled']);
     }
 
     public static function getMetaKey() {

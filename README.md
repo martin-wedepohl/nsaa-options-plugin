@@ -5,7 +5,7 @@
 * Tags: options, wedepohl engineering
 * Requires at least: 4.7 or higher
 * Tested up to: 5.3.2
-* Stable tag: 0.1.2
+* Stable tag: 0.1.3
 * License: [GPLv3 or later](https://www.gnu.org/licenses/gpl-3.0.html)
 
 ### Description
@@ -34,6 +34,14 @@ composer dump
 ### Screenshots
 
 ### Changelog
+
+###### 0.1.3 2019-12-25
+* Ability to auto delete meetings/events through options page
+* Remove auto delete crons on plugin deactivation
+* Correctly select the next service meeting if current month has passed
+* Added CPC/PI page
+* Added more instructions for the plugin
+* Bumped version to 0.1.3
 
 ###### 0.1.2 2019-12-22
 * Added Breakfast Meetings

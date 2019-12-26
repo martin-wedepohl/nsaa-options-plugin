@@ -36,9 +36,50 @@ class NSAAShortcodes {
     public static function getShortcodeInstructions() {
 ?>
 
-<p>[nsaa_get_meeting id="POST_ID"]</p>
+<code>[nsaa_get_meeting id="POST_ID"]</code>
 <ul>
     <li><?php _e('Display the meeting information for a meeting with a specific POST_ID (required)', NSAAConfig::TEXT_DOMAIN) ?></li>
+</ul>
+<code>[nsaa_get_meetings dow="DOW" includeservice="INC_SVC"]</code>
+<ul>
+    <li><?php _e('Display all the meetings for a specific DOW (required) 0=Sunday - 6=Saturday, include service meetings if INC_SVC="true" (defaults = "false")', NSAAConfig::TEXT_DOMAIN) ?></li>
+</ul>
+<code>[nsaa_get_service_meeting name="NAME"]</code>
+<ul>
+    <li><?php _e('Display the information for a service meeting with a specific NAME (required)', NSAAConfig::TEXT_DOMAIN) ?></li>
+</ul>
+<code>[nsaa_get_service_meetings]</code>
+<ul>
+    <li><?php _e('Display all the service meetings for the district', NSAAConfig::TEXT_DOMAIN) ?></li>
+</ul>
+<code>[nsaa_get_calendar days="DAYS"]</code>
+<ul>
+    <li><?php _e('Display a calendar from todays date for the number of DAYS (default = 7) showing all the meetings', NSAAConfig::TEXT_DOMAIN) ?></li>
+</ul>
+<code>[nsaa_get_legend]</code>
+<ul>
+    <li><?php _e('Display the meeting legend', NSAAConfig::TEXT_DOMAIN) ?></li>
+</ul>
+<code>[nsaa_get_events]</code>
+<ul>
+    <li><?php _e('Display a list of all the events in the district', NSAAConfig::TEXT_DOMAIN) ?></li>
+</ul>
+<code>[nsaa_front_page_sections id="SECTION_ID"]</code>
+<ul>
+    <li>
+        <?php _e('Display or hide the front page section with the given SECTION_ID (required). Sections will be hidden if there are no items in the section.', NSAAConfig::TEXT_DOMAIN) ?>
+        <ul>
+            <li><?php _e('ID="service-opportunities" - Display all the service opportunities available in the district.', NSAAConfig::TEXT_DOMAIN) ?></li>
+            <li><?php _e('ID="meeting-changes" - Display all the meeting changes (sorted by date).', NSAAConfig::TEXT_DOMAIN) ?></li>
+            <li><?php _e('ID="cancelled-meetings" - Display all the cancelled meeetings (sorted by date).', NSAAConfig::TEXT_DOMAIN) ?></li>
+            <li><?php _e('ID="added-meetings" - Display all the additional meeetings (sorted by date).', NSAAConfig::TEXT_DOMAIN) ?></li>
+            <li><?php _e('ID="group-cakes" - Display all the upcoming cakes (sorted by date).', NSAAConfig::TEXT_DOMAIN) ?></li>
+            <li><?php _e('ID="gratitude-nights" - Display all upcoming gratitude nights (sorted by date).', NSAAConfig::TEXT_DOMAIN) ?></li>
+            <li><?php _e('ID="events" - Display all the upcoming events (sorted by date).', NSAAConfig::TEXT_DOMAIN) ?></li>
+            <li><?php _e('ID="sunday-morning-breakfast-meeting" - Display the groups running the Sunday Morning Breakfast Meeeting.', NSAAConfig::TEXT_DOMAIN) ?></li>
+            <li><?php _e('ID="district-meeting" - Display the date of the next district meeting.', NSAAConfig::TEXT_DOMAIN) ?></li>
+        </ul>
+    </li>
 </ul>
 
  <?php
@@ -69,6 +110,8 @@ class NSAAShortcodes {
 
     /**
      * Return the instance of the class
+     * 
+     * @return instance $this
      */
     public function get_instance() {
 
@@ -81,7 +124,9 @@ class NSAAShortcodes {
      *     [nsaa_get_meeting id="POST_ID"]
      *         POST_ID (required) - Post ID of the meeting
      * 
-     * @param array $atts Attributes passed to the function
+     * @param array $atts Function attributes [id]
+     * 
+     * @return string $html HTML for the meeting
      */
     public function get_meeting( $atts ) {
 
@@ -168,7 +213,9 @@ class NSAAShortcodes {
      *         DOW (required) - Day of week 0 (Sunday) - 6 (Saturday)
      *         includeservice - Include service meetings - Default false
      *         
-     * @param array $atts Attributes passed to the function
+     * @param array $atts Fuction attributes [dow includeservice]
+     * 
+     * @return string $html HTML for the meetings
      */
     public function get_meetings( $atts ) {
 
@@ -211,10 +258,21 @@ class NSAAShortcodes {
             $html .= (('' === $meeting['additional']) ? '' : '<strong>' . nl2br($meeting['additional']) . '</strong><br />');
         }
 
+        do_action( 'nsaa_after_get_meetings' );
+
+        $html = apply_filters( 'nsaa_get_meetings', $html );
+
         return $html;
 
     }
 
+    /**
+     * Display a service meeting with a specific name (required)
+     * 
+     * @param array $atts Input attributes array [name]
+     * 
+     * @return string $html HTML for the service meeting
+     */
     function get_service_meeting( $atts ) {
 
         do_action( 'nsaa_before_get_service_meeting' );
@@ -292,6 +350,59 @@ class NSAAShortcodes {
             }
         }
 
+        do_action( 'nsaa_after_get_service_meeting' );
+
+        $html = apply_filters( 'nsaa_get_service_meeting', $html );
+        
+        return $html;
+
+    }
+
+    /**
+     * Display the upcoming service meetings
+     * 
+     * @return string $html HTML for the service meetings
+     */
+    public function get_service_meetings() {
+
+        do_action( 'nsaa_before_get_service_meetings' );
+
+        $meetings = NSAAMeeting::getServiceMeetings();
+        $cities = NSAACity::getCities();
+
+        $html = '';
+        foreach( $meetings as $meeting ) {
+            $dow       = NSAAMeeting::getDOW($meeting['dow']);
+            $monthly   = $meeting['monthly'];
+            switch($monthly) {
+                case '1':
+                    $monthly_str = '1st ';
+                break;
+                case '2':
+                    $monthly_str = '2nd ';
+                break;
+                case '3':
+                    $monthly_str = '3rd ';
+                break;
+                case '4':
+                    $monthly_str = '4th ';
+                break;
+                case '5':
+                    $monthly_str = 'Last ';
+                break;
+                default:
+                    $monthly_str = '';
+            }
+            $location  = ('' === $meeting['location']) ? '' : $meeting['location'] . ', ';
+            $html .= '<p><a href="' . esc_url( get_the_permalink( $meeting['id'] ) ) . '" title="Visit ' . $meeting['name'] . '">' . strtoupper( $meeting['name'] ) . '</a> - ' . $monthly_str . $dow . ' of each month @ ' . $meeting['time'] . '<br />';
+            $html .= $location . ' ' . $meeting['address'] . ', ' . $cities[$meeting['city']] . '<br />';
+            $html .= (('' === $meeting['additional']) ? '' : '<strong>' . nl2br($meeting['additional']) . '</strong><br />');
+        }
+
+        do_action( 'nsaa_after_get_service_meetings' );
+
+        $html = apply_filters( 'nsaa_get_service_meetings', $html );
+
         return $html;
 
     }
@@ -301,6 +412,8 @@ class NSAAShortcodes {
      * which will default to 7 days
      *         
      * @param array $atts Attributes passed to the function
+     * 
+     * @return string $html HTML for the calendar
      */
     public function get_calendar( $atts ) {
 
@@ -426,53 +539,22 @@ class NSAAShortcodes {
 
         }
         
+        do_action( 'nsaa_after_get_calendar' );
+
+        $html = apply_filters( 'nsaa_get_calendar', $html );
+
         return $html;
 
     }
 
     /**
+     * Display the meeting legend
+     * 
+     * @return string $html HTML for the legend
      */
-    public function get_service_meetings() {
-
-        do_action( 'nsaa_before_get_service_meetings' );
-
-        $meetings = NSAAMeeting::getServiceMeetings();
-        $cities = NSAACity::getCities();
-
-        $html = '';
-        foreach( $meetings as $meeting ) {
-            $dow       = NSAAMeeting::getDOW($meeting['dow']);
-            $monthly   = $meeting['monthly'];
-            switch($monthly) {
-                case '1':
-                    $monthly_str = '1st ';
-                break;
-                case '2':
-                    $monthly_str = '2nd ';
-                break;
-                case '3':
-                    $monthly_str = '3rd ';
-                break;
-                case '4':
-                    $monthly_str = '4th ';
-                break;
-                case '5':
-                    $monthly_str = 'Last ';
-                break;
-                default:
-                    $monthly_str = '';
-            }
-            $location  = ('' === $meeting['location']) ? '' : $meeting['location'] . ', ';
-            $html .= '<p><a href="' . esc_url( get_the_permalink( $meeting['id'] ) ) . '" title="Visit ' . $meeting['name'] . '">' . strtoupper( $meeting['name'] ) . '</a> - ' . $monthly_str . $dow . ' of each month @ ' . $meeting['time'] . '<br />';
-            $html .= $location . ' ' . $meeting['address'] . ', ' . $cities[$meeting['city']] . '<br />';
-            $html .= (('' === $meeting['additional']) ? '' : '<strong>' . nl2br($meeting['additional']) . '</strong><br />');
-        }
-
-        return $html;
-
-    }
-
     public function get_legend() {
+
+        do_action( 'nsaa_before_get_legend' );
 
         $legends = NSAALegend::getLegends();
 
@@ -488,11 +570,22 @@ class NSAAShortcodes {
             $html = substr( $html, 0, -2 );
         }
 
+        do_action( 'nsaa_after_get_legend' );
+
+        $html = apply_filters( 'nsaa_get_legend', $html );
+
         return $html;
 
     }
 
+    /**
+     * Get all the upcoming events
+     * 
+     * @return string $html HTML for the events
+     */
     public function get_events() {
+
+        do_action( 'nsaa_before_get_events' );
 
         $date = '';
         $html = '<ul>';
@@ -519,11 +612,24 @@ class NSAAShortcodes {
         }
         $html .= '</ul></li></ul>';
 
+        do_action( 'nsaa_after_get_events' );
+
+        $html = apply_filters( 'nsaa_get_events', $html );
+
         return $html;
 
     }
 
+    /**
+     * Display or hide a front page section for a particular id
+     * 
+     * @param string $id ID of the front page section (required)
+     * 
+     * @return string $html HTML for the section
+     */
     public function front_page_sections( $atts ) {
+
+        do_action( 'nsaa_before_front_page_sections' );
 
         // Process the attributes
         $atts = shortcode_atts(
@@ -734,7 +840,7 @@ class NSAAShortcodes {
 
             default:
                 $html = '';
-        }
+            }
 
         // If there is no data for the section hide it
         if( '' === $html ) {
@@ -746,9 +852,12 @@ class NSAAShortcodes {
             return $html;
         }
 
+        do_action( 'nsaa_after_front_page_sections' );
+
+        $html = apply_filters( 'nsaa_front_page_sections', $html );
+
         return $html;
 
     }
-
 
 }

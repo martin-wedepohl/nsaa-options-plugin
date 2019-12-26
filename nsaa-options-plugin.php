@@ -3,7 +3,7 @@
   Plugin Name: North Shore AA Options Plugin
   Plugin URI:
   Description: Optional information used in North Shore AA website
-  Version: 0.1.2
+  Version: 0.1.3
   Author: Martin Wedepohl
   Author URI: https://wedepohlengineering.com
   License: GPLv3 or later
@@ -28,6 +28,12 @@ class NSAAOptions {
     private $_settings = null;
     private $_meeting = null;
     private $_extensions = null;
+    private $_added = null;
+    private $_breakfast = null;
+    private $_cakes = null;
+    private $_cancelled = null;
+    private $_events = null;
+    private $_gratitude = null;
     /**
      * Display error message if Wordpress is not the minimum version
      */
@@ -100,12 +106,12 @@ class NSAAOptions {
         $this->_settings->register();
         $this->_meeting = new NSAAMeeting();
         NSAAShortcodes::initShortcodes();
-        new NSAAAddedMeetings();
-        new NSAABreakfastMeetings();
-        new NSAACake();
-        new NSAACancelledMeetings();
-        new NSAAEvents();
-        new NSAAGratitude();
+        $this->_added = new NSAAAddedMeetings();
+        $this->_breakfast = new NSAABreakfastMeetings();
+        $this->_cakes = new NSAACake();
+        $this->_cancelled = new NSAACancelledMeetings();
+        $this->_events = new NSAAEvents();
+        $this->_gratitude = new NSAAGratitude();
         new NSAAMeetingChanges();
         new NSAAServiceOp();
     }
@@ -130,13 +136,25 @@ class NSAAOptions {
      * Function activation
      */
     function activate() {
+
         flush_rewrite_rules();
+
     }
     /**
      * Function deactivation
      */
     function deactivate() {
+
+        // Delete all the auto delete crons if active 
+        $this->_added->delete_cron();
+        $this->_breakfast->delete_cron();
+        $this->_cakes->delete_cron();
+        $this->_cancelled->delete_cron();
+        $this->_events->delete_cron();
+        $this->_gratitude->delete_cron();
+
         flush_rewrite_rules();
+
     }
     /**
      * Enqueue all the administration scripts and styles

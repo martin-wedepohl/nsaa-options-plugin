@@ -85,6 +85,11 @@ class NSAABreakfastMeetings {
 
     }
 
+    public function delete_cron() {
+        wp_clear_scheduled_hook('delete_breakfast_schedule');
+        remove_action('delete_breakfast_schedule', [$this, 'delete_breakfast']);
+    }
+
     /**
      * Class constructor 
      * 
@@ -95,10 +100,17 @@ class NSAABreakfastMeetings {
         add_action('save_post', [$this, 'save_meta'], 1, 2);
         add_filter('manage_edit-' . self::$POST_TYPE . '_columns', [$this, 'table_head']);
         add_action('manage_' . self::$POST_TYPE . '_posts_custom_column', [$this, 'table_content'], 10, 2);
-        if(!wp_next_scheduled( 'delete_breakfast_schedule')){
-            wp_schedule_event(time(), 'daily', 'delete_breakfast_schedule');
+        $settings = new NSAASettings();
+        $delete_cron = $settings->get_options('auto_delete_breakfast');
+        if('1' === $delete_cron) {
+            if(!wp_next_scheduled( 'delete_breakfast_schedule')){
+                wp_schedule_event(time(), 'daily', 'delete_breakfast_schedule');
+            }
+            add_action('delete_breakfast_schedule', [$this, 'delete_breakfast']);
+        } else {
+            wp_clear_scheduled_hook('delete_breakfast_schedule');
+            remove_action('delete_breakfast_schedule', [$this, 'delete_breakfast']);
         }
-        add_action('delete_breakfast_schedule', [$this, 'delete_breakfast']);
     }
 
     public static function getMetaKey() {
