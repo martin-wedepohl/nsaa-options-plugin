@@ -22,6 +22,7 @@ use NSAAOptions\NSAAShortcodes;
                     <li><?php _e('North Shore AA - Child Theme of OceanWP', NSAAConfig::TEXT_DOMAIN) ?></li>
                     <li><?php _e('Twenty Twenty - Default Wordpress theme just in case there are issues', NSAAConfig::TEXT_DOMAIN) ?></li>
                 </ul>
+                <hr />
                 <h3><?php _e('Plugins', NSAAConfig::TEXT_DOMAIN) ?></h3>
                 <ul>
                     <li><?php _e('Contact Form 7 - Display contact forms for emailing', NSAAConfig::TEXT_DOMAIN) ?></li>
@@ -41,10 +42,24 @@ use NSAAOptions\NSAAShortcodes;
             <div id="tab-content2" class="content">
                 <h2><?php _e('Settings', NSAAConfig::TEXT_DOMAIN) ?></h2>
                 <hr/>
+                <h3><?php _e('Auto Delete', NSAAConfig::TEXT_DOMAIN) ?></h3>
+                <p>
+                    <?php _e('If checked will auto delete custom post types once the date of the post has passed.', NSAAConfig::TEXT_DOMAIN) ?>
+                </p>
+                <ul>
+                    <li><?php _e('Auto Delete Added Meetings - If checked will automatically remove the added meetings after the post date has passed</li>', NSAAConfig::TEXT_DOMAIN) ?>
+                    <li><?php _e('Auto Delete Breakfast Meetings - If checked will automatically remove the breakfast meeting groups after the post date has passed</li>', NSAAConfig::TEXT_DOMAIN) ?>
+                    <li><?php _e('Auto Delete Cakes - If checked will automatically remove the cakes after the post date has passed</li>', NSAAConfig::TEXT_DOMAIN) ?>
+                    <li><?php _e('Auto Delete Cancelled Meetings - If checked will automatically remove the cancelled meetings after the post date has passed</li>', NSAAConfig::TEXT_DOMAIN) ?>
+                    <li><?php _e('Auto Delete Events - If checked will automatically remove the events after the post date has passed</li>', NSAAConfig::TEXT_DOMAIN) ?>
+                    <li><?php _e('Auto Delete Gratitude Meetings - If checked will automatically remove the gratitude meetings after the post date has passed</li>', NSAAConfig::TEXT_DOMAIN) ?>
+                </ul>
+                <hr/>
                 <h3><?php _e('Use Google Maps', NSAAConfig::TEXT_DOMAIN) ?></h3>
                 <p>
                     <?php _e('If checked will display a link to Google Maps for the meeting location.', NSAAConfig::TEXT_DOMAIN) ?>
                 </p>
+                <hr/>
                 <h3><?php _e('Tracking/Analytics Code', NSAAConfig::TEXT_DOMAIN) ?></h3>
                 <p>
                     <?php _e('This section is used for all the analytics/tracking codes used by the various sites.
@@ -53,6 +68,7 @@ use NSAAOptions\NSAAShortcodes;
                 <p>
                     <?php _e('Google Analytics Tracking Code - Typically UA-XXXXXXX-X', NSAAConfig::TEXT_DOMAIN) ?>
                 </p>
+                <hr/>
                 <h3><?php _e('Debugging', NSAAConfig::TEXT_DOMAIN) ?></h3>
                 <p>
                     <?php _e('If checked will display the template used by the page and enable debug printing to the debug log.', NSAAConfig::TEXT_DOMAIN) ?>
@@ -62,10 +78,9 @@ use NSAAOptions\NSAAShortcodes;
 
         <li class="tab">
             <input type="radio" name="tabs" id="tab3" />
-            <label for="tab3"><?php _e('Meetings', NSAAConfig::TEXT_DOMAIN) ?></label>   
+            <label for="tab3"><?php _e('Custom Post Types', NSAAConfig::TEXT_DOMAIN) ?></label>   
             <div id="tab-content3" class="content">
-                <h2><?php _e('Meeting Custom Post Type', NSAAConfig::TEXT_DOMAIN) ?></h2>
-                <hr/>
+                <h2><?php _e('Meeting Custom Post Types', NSAAConfig::TEXT_DOMAIN) ?></h2>
                 <p>
                     <?php _e('This custom post type is used to enter the data for
                              the meeting which is used on the meeting page and in various other pages on the site.', NSAAConfig::TEXT_DOMAIN) ?>
@@ -89,15 +104,8 @@ use NSAAOptions\NSAAShortcodes;
                         </ul>
                     </li>
                 </ul>
-            </div>
-        </li>
-
-        <li class="tab">
-            <input type="radio" name="tabs" id="tab4" />
-            <label for="tab4"><?php _e('Cities', NSAAConfig::TEXT_DOMAIN) ?></label>   
-            <div id="tab-content4" class="content">
-                <h2><?php _e('Cities Custom Post Type', NSAAConfig::TEXT_DOMAIN) ?></h2>
                 <hr/>
+                <h2><?php _e('Cities Custom Post Type', NSAAConfig::TEXT_DOMAIN) ?></h2>
                 <p>
                     <?php _e('This custom post type is used to create the city in the District.', NSAAConfig::TEXT_DOMAIN) ?>
                 </p>
@@ -107,15 +115,8 @@ use NSAAOptions\NSAAShortcodes;
                 <ul>
                     <li><strong><?php _e('Title', NSAAConfig::TEXT_DOMAIN) ?></strong><?php _e(' (required) - Name of the city', NSAAConfig::TEXT_DOMAIN) ?></li>
                 </ul>
-            </div>
-        </li>
-
-        <li class="tab">
-            <input type="radio" name="tabs" id="tab5" />
-            <label for="tab5"><?php _e('Added Meeting', NSAAConfig::TEXT_DOMAIN) ?></label>   
-            <div id="tab-content5" class="content">
-                <h2><?php _e('Added Meeting Custom Post Type', NSAAConfig::TEXT_DOMAIN) ?></h2>
                 <hr/>
+                <h2><?php _e('Added Meeting Custom Post Type', NSAAConfig::TEXT_DOMAIN) ?></h2>
                 <p>
                     <?php _e('This custom post type is used to enter the data for meetings that are added.', NSAAConfig::TEXT_DOMAIN) ?>
                 </p>
@@ -134,15 +135,8 @@ use NSAAOptions\NSAAShortcodes;
                         </ul>
                     </li>
                 </ul>
-            </div>
-        </li>
-
-        <li class="tab">
-            <input type="radio" name="tabs" id="tab6" />
-            <label for="tab6"><?php _e('Breakfast Meeting', NSAAConfig::TEXT_DOMAIN) ?></label>   
-            <div id="tab-content6" class="content">
-                <h2><?php _e('Breakfast Meeting Custom Post Type', NSAAConfig::TEXT_DOMAIN) ?></h2>
                 <hr/>
+                <h2><?php _e('Breakfast Meeting Custom Post Type', NSAAConfig::TEXT_DOMAIN) ?></h2>
                 <p>
                     <?php _e('This custom post type is used to enter the name of the group that is sponsoring the Sunday Morning Breakfast Meeting.', NSAAConfig::TEXT_DOMAIN) ?>
                 </p>
@@ -161,15 +155,8 @@ use NSAAOptions\NSAAShortcodes;
                         </ul>
                     </li>
                 </ul>
-            </div>
-        </li>
-
-        <li class="tab">
-            <input type="radio" name="tabs" id="tab7" />
-            <label for="tab7"><?php _e('Cake', NSAAConfig::TEXT_DOMAIN) ?></label>   
-            <div id="tab-content7" class="content">
-                <h2><?php _e('Cake Custom Post Type', NSAAConfig::TEXT_DOMAIN) ?></h2>
                 <hr/>
+                <h2><?php _e('Cake Custom Post Type', NSAAConfig::TEXT_DOMAIN) ?></h2>
                 <p>
                     <?php _e('This custom post type is used to enter the name/date/milestone and group of a member taking a cake.', NSAAConfig::TEXT_DOMAIN) ?>
                 </p>
@@ -189,15 +176,8 @@ use NSAAOptions\NSAAShortcodes;
                         </ul>
                     </li>
                 </ul>
-            </div>
-        </li>
-
-        <li class="tab">
-            <input type="radio" name="tabs" id="tab8" />
-            <label for="tab8"><?php _e('Cancelled Meeting', NSAAConfig::TEXT_DOMAIN) ?></label>   
-            <div id="tab-content8" class="content">
-                <h2><?php _e('Cancelled Meeting Custom Post Type', NSAAConfig::TEXT_DOMAIN) ?></h2>
                 <hr/>
+                <h2><?php _e('Cancelled Meeting Custom Post Type', NSAAConfig::TEXT_DOMAIN) ?></h2>
                 <p>
                     <?php _e('This custom post type is used to enter the data for meetings that are cancelled.', NSAAConfig::TEXT_DOMAIN) ?>
                 </p>
@@ -216,15 +196,8 @@ use NSAAOptions\NSAAShortcodes;
                         </ul>
                     </li>
                 </ul>
-            </div>
-        </li>
-
-        <li class="tab">
-            <input type="radio" name="tabs" id="tab9" />
-            <label for="tab9"><?php _e('Events', NSAAConfig::TEXT_DOMAIN) ?></label>   
-            <div id="tab-content9" class="content">
-                <h2><?php _e('Events Custom Post Type', NSAAConfig::TEXT_DOMAIN) ?></h2>
                 <hr/>
+                <h2><?php _e('Events Custom Post Type', NSAAConfig::TEXT_DOMAIN) ?></h2>
                 <p>
                     <?php _e('This custom post type is used to enter the data for district events.', NSAAConfig::TEXT_DOMAIN) ?>
                 </p>
@@ -245,15 +218,8 @@ use NSAAOptions\NSAAShortcodes;
                         </ul>
                     </li>
                 </ul>
-            </div>
-        </li>
-
-        <li class="tab">
-            <input type="radio" name="tabs" id="tab10" />
-            <label for="tab10"><?php _e('Gratitudes', NSAAConfig::TEXT_DOMAIN) ?></label>   
-            <div id="tab-content10" class="content">
-                <h2><?php _e('Gratitude Night Custom Post Type', NSAAConfig::TEXT_DOMAIN) ?></h2>
                 <hr/>
+                <h2><?php _e('Gratitude Night Custom Post Type', NSAAConfig::TEXT_DOMAIN) ?></h2>
                 <p>
                     <?php _e('This custom post type is used to enter the data for a gratitude night.', NSAAConfig::TEXT_DOMAIN) ?>
                 </p>
@@ -275,15 +241,8 @@ use NSAAOptions\NSAAShortcodes;
                         </ul>
                     </li>
                 </ul>
-            </div>
-        </li>
-
-        <li class="tab">
-            <input type="radio" name="tabs" id="tab11" />
-            <label for="tab11"><?php _e('Meeting Changes', NSAAConfig::TEXT_DOMAIN) ?></label>   
-            <div id="tab-content11" class="content">
-                <h2><?php _e('Meeting Change Custom Post Type', NSAAConfig::TEXT_DOMAIN) ?></h2>
                 <hr/>
+                <h2><?php _e('Meeting Change Custom Post Type', NSAAConfig::TEXT_DOMAIN) ?></h2>
                 <p>
                     <?php _e('This custom post type is used to enter the data for a changed meetings.', NSAAConfig::TEXT_DOMAIN) ?>
                 </p>
@@ -294,15 +253,8 @@ use NSAAOptions\NSAAShortcodes;
                     <li><strong><?php _e('Title', NSAAConfig::TEXT_DOMAIN) ?></strong><?php _e(' (required) - The name of the changed meeting', NSAAConfig::TEXT_DOMAIN) ?></li>
                     <li><strong><?php _e('Content', NSAAConfig::TEXT_DOMAIN) ?></strong><?php _e(' (required) - The information about the changed meeting', NSAAConfig::TEXT_DOMAIN) ?></li>
                 </ul>
-            </div>
-        </li>
-
-        <li class="tab">
-            <input type="radio" name="tabs" id="tab12" />
-            <label for="tab12"><?php _e('Service Op', NSAAConfig::TEXT_DOMAIN) ?></label>   
-            <div id="tab-content12" class="content">
-                <h2><?php _e('Service Op Custom Post Type', NSAAConfig::TEXT_DOMAIN) ?></h2>
                 <hr/>
+                <h2><?php _e('Service Op Custom Post Type', NSAAConfig::TEXT_DOMAIN) ?></h2>
                 <p>
                     <?php _e('This custom post type is used to enter the data for a service opportunity.', NSAAConfig::TEXT_DOMAIN) ?>
                 </p>
@@ -317,14 +269,13 @@ use NSAAOptions\NSAAShortcodes;
         </li>
 
         <li class="tab">
-            <input type="radio" name="tabs" id="tab13" />
-            <label for="tab13"><?php _e('Shortcodes', NSAAConfig::TEXT_DOMAIN) ?></label>   
-            <div id="tab-content13" class="content">
+            <input type="radio" name="tabs" id="tab4" />
+            <label for="tab4"><?php _e('Shortcodes', NSAAConfig::TEXT_DOMAIN) ?></label>   
+            <div id="tab-content4" class="content">
                 <h2><?php _e('Shortcodes', NSAAConfig::TEXT_DOMAIN) ?></h2>
-                <hr/>
                 <?php NSAAShortcodes::getShortcodeInstructions(); ?>
-                <h2><?php _e('Modify\Remove Shortcode', NSAAConfig::TEXT_DOMAIN) ?></h2>
                 <hr/>
+                <h2><?php _e('Modify\Remove Shortcode', NSAAConfig::TEXT_DOMAIN) ?></h2>
                 <?php NSAAShortcodes::getRemovalInstructions(); ?>
             </div>
         </li>
