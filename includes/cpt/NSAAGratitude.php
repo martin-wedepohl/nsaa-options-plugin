@@ -100,6 +100,11 @@ class NSAAGratitude {
 
     }
 
+    public function delete_cron() {
+        wp_clear_scheduled_hook('delete_gratitudes_schedule');
+        remove_action('delete_gratitudes_schedule', [$this, 'delete_gratitudes']);
+}
+
     /**
      * Class constructor 
      * 

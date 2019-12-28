@@ -93,6 +93,11 @@ class NSAACake {
 
     }
 
+    public function delete_cron() {
+        wp_clear_scheduled_hook('delete_cakes_schedule');
+        remove_action('delete_cakes_schedule', [$this, 'delete_cakes']);
+    }
+
     /**
      * Class constructor 
      * 

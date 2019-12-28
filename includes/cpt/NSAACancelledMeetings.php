@@ -85,6 +85,11 @@ class NSAACancelledMeetings {
 
     }
 
+    public function delete_cron() {
+        wp_clear_scheduled_hook('delete_cancelled_schedule');
+        remove_action('delete_cancelled_schedule', [$this, 'delete_cancelled']);
+    }
+
     /**
      * Class constructor 
      * 

@@ -102,6 +102,11 @@ class NSAAEvents {
 
     }
 
+    public function delete_cron() {
+        wp_clear_scheduled_hook('delete_events_schedule');
+        remove_action('delete_events_schedule', [$this, 'delete_events']);
+    }
+
     /**
      * Class constructor 
      * 

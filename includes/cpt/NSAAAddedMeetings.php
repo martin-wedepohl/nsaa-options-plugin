@@ -87,7 +87,7 @@ class NSAAAddedMeetings {
 
     public function delete_cron() {
         wp_clear_scheduled_hook('delete_added_schedule');
-        remove_action('delete_added_schedule', [this, 'delete_added']);
+        remove_action('delete_added_schedule', [$this, 'delete_added']);
     }
 
     /**
