@@ -5,7 +5,7 @@
 * Tags: options, wedepohl engineering
 * Requires at least: 4.7 or higher
 * Tested up to: 5.3.2
-* Stable tag: 0.1.3
+* Stable tag: 0.1.4
 * License: [GPLv3 or later](https://www.gnu.org/licenses/gpl-3.0.html)
 
 ### Description
@@ -34,6 +34,11 @@ composer dump
 ### Screenshots
 
 ### Changelog
+
+###### 0.1.4 2019-12-28
+* FIX: Added missing delete_cron functions, fixed typo
+* Improved instructions
+* Bumped version to 0.1.4
 
 ###### 0.1.3 2019-12-25
 * Ability to auto delete meetings/events through options page
