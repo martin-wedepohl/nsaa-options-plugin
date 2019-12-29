@@ -3,7 +3,7 @@
   Plugin Name: North Shore AA Options Plugin
   Plugin URI:
   Description: Optional information used in North Shore AA website
-  Version: 0.1.5
+  Version: 0.1.6
   Author: Martin Wedepohl
   Author URI: https://wedepohlengineering.com
   License: GPLv3 or later
@@ -92,16 +92,63 @@ class NSAAOptions {
         }
         register_activation_hook( __FILE__, [ $this, 'activate' ] );
         register_deactivation_hook( __FILE__, [ $this, 'deactivate' ] );
+        
         // Add Javascript and CSS for admin screens
         add_action( 'admin_enqueue_scripts', [ $this, 'enqueueAdmin' ] );
+        
         // Add Javascript and CSS for front-end display
         add_action( 'wp_enqueue_scripts', [ $this, 'enqueue' ] );
+        
         // Add a settings link on the plugin page
         add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), [ $this, 'plugin_action_link' ] );
+        
         // Add Google Analytics to head
-//        add_action('wp_head', [$this, 'add_analytics_in_header'], 100);
-//        add_action( 'elementor/elements/categories_registered', [ $this, 'create_custom_categories' ] );
-//        add_filter( 'ocean_post_layout_class', [ $this, 'my_post_layout_class' ], 20 );
+        add_action('wp_head', [$this, 'add_analytics_in_header'], 100);
+
+        // Remove comments from website
+        add_action('admin_init', [$this, 'remove_comments']);
+
+        // Close comments on the front-end
+        add_filter('comments_open', '__return_false', 20, 2);
+        add_filter('pings_open', '__return_false', 20, 2);
+
+        // Hide existing comments
+        add_filter('comments_array', '__return_empty_array', 10, 2);
+
+        // Remove comments page in menu and discussion submenu page
+        add_action('admin_menu', function () {
+            remove_menu_page('edit-comments.php');
+            remove_submenu_page('options-general.php', 'options-discussion.php');
+        });
+
+        // Remove comments links from admin bar
+        add_action('init', function () {
+            if (is_admin_bar_showing()) {
+                remove_action('admin_bar_menu', 'wp_admin_bar_comments_menu', 60);
+            }
+        });
+
+        // Clean up code in header
+        remove_action('wp_head', 'rsd_link');                                   // Remove "Really Simple Discovery" tag; not needed if XML-RPC is disabled.
+        remove_action('wp_head', 'wlwmanifest_link');                           // Remove "Windows Live Writer Manifest" tag.
+        remove_action('wp_head', 'print_emoji_detection_script', 7);            // Remove emoji JavaScript tags.
+        remove_action('admin_print_scripts', 'print_emoji_detection_script');
+        remove_action('wp_print_styles', 'print_emoji_styles');                 // Remove emoji CSS tags.
+        remove_action('admin_print_styles', 'print_emoji_styles');
+        add_filter('emoji_svg_url' , '__return_false');                         // Remove emoji DNS prefetch tag.
+        remove_action('wp_head', 'wp_shortlink_wp_head');                       // Remove shortlink tag.
+        remove_action('wp_head', 'wp_generator');                               // Remove generator tag.
+        remove_action('wp_head', 'feed_links', 2);                              // Remove general RSS feed tags.
+        remove_action('wp_head', 'feed_links_extra', 3);                        // Remove specific-post RSS comment feed tags.
+        remove_action('wp_head', 'adjacent_posts_rel_link_wp_head');            // Remove prev/next relational tags.
+        remove_action('wp_head', 'rest_output_link_wp_head');                   // Remove WordPress API call tag.
+        remove_action('wp_head', 'wp_oembed_add_discovery_links');              // Remove oembed discovery tags.
+
+        // Allow REST only for logged in users
+        add_filter('rest_authentication_errors', [$this, 'only_authorised_rest_access']);
+
+        // All the plugin classes
+        new NSAADebug();
         $this->_settings = new NSAASettings();
         $this->_settings->register();
         $this->_meeting = new NSAAMeeting();
@@ -116,22 +163,6 @@ class NSAAOptions {
         new NSAAServiceOp();
     }
 
-    function my_post_layout_class( $class ) {
-
-        // Alter your layout
-
-        $post_type = get_post_type();
-        $meeting_post_type = NSAAMeeting::getPostType();
-
-        if($post_type === $meeting_post_type) {
-            $class = 'full-width';
-        }
-    
-        // Return correct class
-        return $class;
-    
-    }
-    
     /**
      * Function activation
      */
@@ -197,10 +228,10 @@ class NSAAOptions {
         // Getting that requires this call. Always go ahead and include ajaxurl. Any other variables,
         // add to the array.
         // Then in the Javascript file, you can refer to it like this: externalName.someVariable
-//        wp_localize_script( 'descriptive-name', 'externalName', array(
-//            'ajaxurl' => admin_url('admin-ajax.php'),
-//            'someVariable' => 'These are my socks'
-//        ));
+        //        wp_localize_script( 'descriptive-name', 'externalName', array(
+        //            'ajaxurl' => admin_url('admin-ajax.php'),
+        //            'someVariable' => 'These are my socks'
+        //        ));
     }
     /**
      * Create the additional links underneath the plugin name
@@ -214,6 +245,68 @@ class NSAAOptions {
         $links[] = '<a href="' . admin_url( 'admin.php?page=' . NSAAConfig::INSTRUCTIONS_PAGE ) . '">' . __( 'Instructions', NSAAConfig::TEXT_DOMAIN ) . '</a>';
         return $links;
     }
+
+    /**
+     * Add Google Analytics to the head of the pages only if an analytics string is set
+     */
+    public function add_analytics_in_header() {
+        
+        $analytics_code = $this->_settings->get_options('google');
+        if('' !== $analytics_code) {
+            $script  = '<!-- Google Analytics -->';
+            $script .= '<script>';
+            $script .= 'window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;';
+            $script .= 'ga(\'create\',\'' . $analytics_code . '\',\'auto\');';
+            $script .= 'ga(\'send\',\'pageview\');';
+            $script .= '</script>';
+            $script .= '<script async src=\'https://www.google-analytics.com/analytics.js\'></script>';
+            $script .= '<!-- End Google Analytics -->';
+
+            echo $script;
+        }
+
+    }
+
+    /**
+     * Remove comments from the website if we want to
+     */
+    public function remove_comments() {
+
+        // Redirect any user trying to access comments page
+        global $pagenow;
+        
+        if ($pagenow === 'edit-comments.php') {
+            wp_redirect(admin_url());
+            exit;
+        }
+
+        // Remove comments metabox from dashboard
+        remove_meta_box('dashboard_recent_comments', 'dashboard', 'normal');
+
+        // Disable support for comments and trackbacks in post types
+        foreach (get_post_types() as $post_type) {
+            if (post_type_supports($post_type, 'comments')) {
+                remove_post_type_support($post_type, 'comments');
+                remove_post_type_support($post_type, 'trackbacks');
+            }
+        }
+
+    }
+
+    /**
+     * Allow only logged in users to access the REST API
+     */
+    public function only_authorised_rest_access( $result ) {
+        if( ! is_user_logged_in() ) {
+            return new \WP_Error(
+                'rest_unauthorised',
+                __( 'Only authenticated users can access the REST API.', NSAAConfig::TEXT_DOMAIN ), 
+                array( 'status' => rest_authorization_required_code() )
+            );
+        }
+    
+        return $result;
+    }
+
 }
 new NSAAOptions();
-new NSAADebug();

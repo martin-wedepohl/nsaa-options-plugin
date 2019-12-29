@@ -35,6 +35,12 @@ composer dump
 
 ### Changelog
 
+###### 0.1.6 2019-12-29
+* Added script to put Google Analytics in the head section
+* Remove comments from the website
+* Remove redundant code in the head section
+* Allow the REST API to only be accessed by logged in users
+
 ###### 0.1.5 2019-12-28
 * Added script to automatically select who to email
 * Scripts only loaded on specific pages

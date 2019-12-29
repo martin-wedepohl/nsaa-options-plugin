@@ -30,6 +30,7 @@ use NSAAOptions\NSAAShortcodes;
                     <li><?php _e('Elementor - Page builder for the pages', NSAAConfig::TEXT_DOMAIN) ?></li>
                     <li><?php _e('North Shore AA Options Plugin - Required options/custom post types/shortcodes', NSAAConfig::TEXT_DOMAIN) ?></li>
                     <li><?php _e('Ocean Extra - Extra features for the OceanWP Theme', NSAAConfig::TEXT_DOMAIN) ?></li>
+                    <li><?php _e('Ocean Stick Anything - Used to stick the header on the OceanWP Theme', NSAAConfig::TEXT_DOMAIN) ?></li>
                     <li><?php _e('Rank Math SEO - SEO/Redirection/404 Logging', NSAAConfig::TEXT_DOMAIN) ?></li>
                     <li><?php _e('WP-Optimize - Database optimization/caching/compression', NSAAConfig::TEXT_DOMAIN) ?></li>
                 </ul>
