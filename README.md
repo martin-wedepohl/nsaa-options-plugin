@@ -35,6 +35,12 @@ composer dump
 
 ### Changelog
 
+###### 0.1.5 2019-12-28
+* Added script to automatically select who to email
+* Scripts only loaded on specific pages
+* Scripts are now using strict mode
+* Bumpted version to 0.1.5
+
 ###### 0.1.4 2019-12-28
 * FIX: Added missing delete_cron functions, fixed typo
 * Improved instructions

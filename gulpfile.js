@@ -36,7 +36,8 @@ var jsSRC        = devDir + 'src/js/';
 var jsINST       = 'instructions.js'
 var jsAdmin      = 'scripts.js';
 var jsFE         = 'scripts-fe.js';
-var jsFiles      = [jsAdmin, jsINST, jsFE];
+var jsContact    = 'scripts-contact-fe.js';
+var jsFiles      = [jsAdmin, jsINST, jsFE, jsContact];
 var jsDEST       = baseDir + 'dist/js/';
 
 // Images

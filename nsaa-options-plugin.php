@@ -3,7 +3,7 @@
   Plugin Name: North Shore AA Options Plugin
   Plugin URI:
   Description: Optional information used in North Shore AA website
-  Version: 0.1.4
+  Version: 0.1.5
   Author: Martin Wedepohl
   Author URI: https://wedepohlengineering.com
   License: GPLv3 or later
@@ -186,8 +186,13 @@ class NSAAOptions {
     public function enqueue() {
         // Actual enqueues, note the files are in the js and css folders
         // For scripts, make sure you are including the relevant dependencies (jquery in this case)
-    	wp_enqueue_script('scripts-fe', plugins_url( 'dist/js/scripts-fe.min.js', __FILE__ ), array('jquery'), NSAAConfig::VERSION, true);
         wp_enqueue_style( 'nsaa-options-fe', plugins_url( 'dist/css/style-fe.min.css', __FILE__ ), null, NSAAConfig::VERSION );
+        if(is_front_page()) {
+            wp_enqueue_script('scripts-fe', plugins_url( 'dist/js/scripts-fe.min.js', __FILE__ ), array('jquery'), NSAAConfig::VERSION, true);
+        }
+        if(is_page('contact-us')) {
+            wp_enqueue_script( 'nsaa-contact-fe', plugins_url( 'dist/js/scripts-contact-fe.min.js', __FILE__ ), [], NSAAConfig::VERSION, true );
+        }
         // Sometimes you want to have access to data on the front end in your Javascript file
         // Getting that requires this call. Always go ahead and include ajaxurl. Any other variables,
         // add to the array.
