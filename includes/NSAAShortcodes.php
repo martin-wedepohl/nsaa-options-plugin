@@ -14,6 +14,76 @@ defined('ABSPATH') or die('');
  */
 class NSAAShortcodes {
 
+    private static function createGratitudes() {
+        $date = '';
+        $html = '<ul>';
+        $posts = NSAAGratitude::getGratitudes();
+        foreach($posts as $id => $post) {
+            if($date !== $post['gdate']) {
+                $date = date('l F jS, Y', strtotime($post['gdate']));
+                if('<ul>' === $html) {
+                    $html .= "<li>{$date}<ul>";
+                } else {
+                    $html .= "</ul></li><li>{$date}<ul>";
+                }
+                $date = $post['gdate'];
+            }
+            $group = get_the_title($post['group']);
+            $link = '<a href="' . esc_url( get_the_permalink( $post['group'] ) ) . '" title="Visit ' . $group. '">' . strtoupper( $group ) . '</a>';
+
+            $additional = $post['additional'];
+            if('' === $additional) {
+                $additional = "({$post['gtime']})";
+            } else {
+                $additional = "({$post['gtime']} - {$additional})";
+            }   
+            $html .= "<li>{$post['name']} {$additional} - {$link}</li>";
+            if(!empty($post['thumbnail'])) {
+                $html .= '<a href="' . esc_url($post['thumbnail_url']) . '" rel="lightbox" title="View Larger Image">' . $post['thumbnail'] . '</a>';
+            }
+        }
+        $html .= '</ul></li></ul>';
+        if('<ul></ul></li></ul>' === $html) {
+            $html = '';
+        }
+
+        return $html;
+    }
+
+    private static function createEvents() {
+        $date = '';
+        $html = '<ul>';
+        $posts = NSAAEvents::getEvents();
+        foreach($posts as $id => $post) {
+            if($date !== $post['sdate']) {
+                $date = date('l F jS, Y', strtotime($post['sdate']));
+                if('<ul>' === $html) {
+                    $html .= "<li>{$date}<ul>";
+                } else {
+                    $html .= "</ul></li><li>{$date}<ul>";
+                }
+                $date = $post['sdate'];
+            }
+
+            $html .= "<li><strong>{$post['title']}</strong><br />";
+
+            $msg = "{$post['content']}";
+            $html .= nl2br( $msg ) . '</li>';
+
+            if(!empty($post['thumbnail'])) {
+                $html .= '<a href="' . esc_url($post['thumbnail_url']) . '" rel="lightbox" title="View Larger Image">' . $post['thumbnail'] . '</a>';
+            }
+        }
+        $html .= '</ul></li></ul>';
+
+        if('<ul></ul></li></ul>' === $html) {
+            $html = '';
+        }
+
+        return $html;
+
+    }
+
     /**
      * Initialize the shortcodes used in the plugin
      */
@@ -434,11 +504,13 @@ class NSAAShortcodes {
         $legends = NSAALegend::getLegends();
         $cancelled = NSAACancelledMeetings::getCancelled();
         $added = NSAAAddedMeetings::getAdded();
+        $gratitudes = NSAAGratitude::getGratitudes();
 
         $html = '';
         for($day = 0; $day < $atts['days']; $day++) {
             $day_ts = strtotime("+ $day day");
             $theday = date('l F jS, Y', $day_ts);
+            $thegday = date('l F j, Y', $day_ts);
             $day_str = date('l', $day_ts);
             $month_str = date('F', $day_ts); 
             $month_num = date('n', $day_ts);
@@ -514,8 +586,29 @@ class NSAAShortcodes {
                         }
                     }
                 }
+
+                // Check if Gratitude meeting
+                $gratitudenight = '';
+                foreach($gratitudes as $gratitude) {
+                    if(true === in_array($meeting['id'], $gratitude)) {
+                        if($gratitude['gdate'] === $thegday) {
+                            $gratitudenight = $gratitude;
+                        }
+                    }
+                }
                 
                 if($occurs) {
+                    if('' !== $gratitudenight) {
+                        $gtime = $gratitudenight['gtime'];
+                        $gtime_ts = strtotime($gtime);
+                        $mtime = $meeting['time'];
+                        $mtime_ts = strtotime($mtime);
+                        if($gtime_ts > $mtime_ts) {
+                            $after = true;
+                        } else {
+                            $after = false;
+                        }
+                    }
 
                     $city = ((isset( $cities[$meeting['city']] )) ? $cities[$meeting['city']] : '');
                     $legend_str = '';
@@ -528,10 +621,19 @@ class NSAAShortcodes {
                     }
                     $location = ('' === $meeting['location']) ? '' : $meeting['location'] . ', ';
 
-                    $html .= '<p>' . $meeting['time'] . ' - <a href="' . esc_url( get_the_permalink( $meeting['id'] ) ) . '" title="Visit ' . $meeting['name'] . '">' . strtoupper( $meeting['name'] ) . '</a>' . $legend_str . '<br />';
+                    $html .= '<p>';
+
+                    if('' !== $gratitudenight && false === $after) {
+                        $html .= '<strong>***** ' . strtoupper($meeting['name']) . ' Gratitude Meeting *****</strong> @ ' . $gratitudenight['gtime'] . ' ' . $gratitudenight['additional'] . '<br />';
+                    }
+                    $html .= $meeting['time'] . ' - <a href="' . esc_url( get_the_permalink( $meeting['id'] ) ) . '" title="Visit ' . $meeting['name'] . '">' . strtoupper( $meeting['name'] ) . '</a>' . $legend_str . '<br />';
                     $html .= $location . ' ' . $meeting['address'] . ', ' . $city . '<br />';
                     $html .= (('' === $meeting['additional']) ? '' : '<strong>' . nl2br($meeting['additional']) . '</strong><br />');
+                    if('' !== $gratitudenight && true === $after) {
+                        $html .= '<strong>***** ' . strtoupper($meeting['name']) . ' Gratitude Meeting *****</strong> @ ' . $gratitudenight['gtime'] . ' ' . $gratitudenight['additional'];
+                    }
 
+                    $html .= '</p>';
                 }
             }
 
@@ -587,30 +689,14 @@ class NSAAShortcodes {
 
         do_action( 'nsaa_before_get_events' );
 
-        $date = '';
-        $html = '<ul>';
-        $posts = NSAAEvents::getEvents();
-        foreach($posts as $id => $post) {
-            if($date !== $post['sdate']) {
-                $date = date('l F jS', strtotime($post['sdate']));
-                if('<ul>' === $html) {
-                    $html .= "<li>{$date}<ul>";
-                } else {
-                    $html .= "</ul></li><li>{$date}<ul>";
-                }
-                $date = $post['sdate'];
-            }
-
-            $html .= "<li><strong>{$post['title']}</strong><br />";
-
-            $msg = "{$post['content']}";
-            $html .= nl2br( $msg ) . '</li>';
-
-            if(!empty($post['thumbnail'])) {
-                $html .= '<a href="' . esc_url($post['thumbnail_url']) . '" rel="lightbox" title="View Larger Image">' . $post['thumbnail'] . '</a>';
-            }
+        $html = NSAAShortcodes::createEvents();
+        
+        $gratitudes = NSAAShortcodes::createGratitudes();
+        if('' !== $gratitudes) {
+            $html .= '<br />';
+            $html .= '<h2>Gratitude Nights</h2>';
+            $html .= $gratitudes;
         }
-        $html .= '</ul></li></ul>';
 
         do_action( 'nsaa_after_get_events' );
 
@@ -678,7 +764,7 @@ class NSAAShortcodes {
                 $posts = NSAACancelledMeetings::getCancelled();
                 foreach($posts as $id => $post) {
                     if($date !== $post['cdate']) {
-                        $date = date('l F jS', strtotime($post['cdate']));
+                        $date = date('l F jS, Y', strtotime($post['cdate']));
                         if('<ul>' === $html) {
                             $html .= "<li>{$date}<ul>";
                         } else {
@@ -703,7 +789,7 @@ class NSAAShortcodes {
                 $posts = NSAAAddedMeetings::getAdded();
                 foreach($posts as $id => $post) {
                     if($date !== $post['adate']) {
-                        $date = date('l F jS', strtotime($post['adate']));
+                        $date = date('l F jS, Y', strtotime($post['adate']));
                         if('<ul>' === $html) {
                             $html .= "<li>{$date}<ul>";
                         } else {
@@ -728,7 +814,7 @@ class NSAAShortcodes {
                 $posts = NSAACake::getCakes();
                 foreach($posts as $id => $post) {
                     if($date !== $post['cdate']) {
-                        $date = date('l F jS', strtotime($post['cdate']));
+                        $date = date('l F jS, Y', strtotime($post['cdate']));
                         if('<ul>' === $html) {
                             $html .= "<li>{$date}<ul>";
                         } else {
@@ -756,67 +842,11 @@ class NSAAShortcodes {
             break;
 
             case 'gratitude-nights':
-                $date = '';
-                $html = '<ul>';
-                $posts = NSAAGratitude::getGratitudes();
-                foreach($posts as $id => $post) {
-                    if($date !== $post['gdate']) {
-                        $date = date('l F jS', strtotime($post['gdate']));
-                        if('<ul>' === $html) {
-                            $html .= "<li>{$date}<ul>";
-                        } else {
-                            $html .= "</ul></li><li>{$date}<ul>";
-                        }
-                        $date = $post['gdate'];
-                    }
-                    $group = get_the_title($post['group']);
-                    $link = '<a href="' . esc_url( get_the_permalink( $post['group'] ) ) . '" title="Visit ' . $group. '">' . strtoupper( $group ) . '</a>';
-
-                    $additional = $post['additional'];
-                    if('' === $additional) {
-                        $additional = "({$post['gtime']})";
-                    } else {
-                        $additional = "({$post['gtime']} - {$additional})";
-                    }   
-                    $html .= "<li>{$post['name']} {$additional} - {$link}</li>";
-                    if(!empty($post['thumbnail'])) {
-                        $html .= '<a href="' . esc_url($post['thumbnail_url']) . '" rel="lightbox" title="View Larger Image">' . $post['thumbnail'] . '</a>';
-                    }
-                }
-                $html .= '</ul></li></ul>';
-                if('<ul></ul></li></ul>' === $html) {
-                    $html = '';
-                }
+                $html = NSAAShortcodes::createGratitudes();
             break;
 
             case 'events':
-                $date = '';
-                $html = '<ul>';
-                $posts = NSAAEvents::getEvents();
-                foreach($posts as $id => $post) {
-                    if($date !== $post['sdate']) {
-                        $date = date('l F jS', strtotime($post['sdate']));
-                        if('<ul>' === $html) {
-                            $html .= "<li>{$date}<ul>";
-                        } else {
-                            $html .= "</ul></li><li>{$date}<ul>";
-                        }
-                        $date = $post['sdate'];
-                    }
-
-                    $html .= "<li><strong>{$post['title']}</strong><br />";
-
-                    $msg = "{$post['content']}";
-                    $html .= nl2br( $msg ) . '</li>';
-
-                    if(!empty($post['thumbnail'])) {
-                        $html .= '<a href="' . esc_url($post['thumbnail_url']) . '" rel="lightbox" title="View Larger Image">' . $post['thumbnail'] . '</a>';
-                    }
-                }
-                $html .= '</ul></li></ul>';
-                if('<ul></ul></li></ul>' === $html) {
-                    $html = '';
-                }
+                $html = NSAAShortcodes::createEvents();
             break;
 
             case 'sunday-morning-breakfast-meeting':

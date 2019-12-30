@@ -35,6 +35,9 @@ composer dump
 
 ### Changelog
 
+###### 0.1.7 2019-12-29
+* Display gratitude nights on the events page and calendar
+
 ###### 0.1.6 2019-12-29
 * Added script to put Google Analytics in the head section
 * Remove comments from the website
