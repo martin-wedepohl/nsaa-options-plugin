@@ -3,7 +3,7 @@
   Plugin Name: North Shore AA Options Plugin
   Plugin URI:
   Description: Optional information used in North Shore AA website
-  Version: 0.1.7
+  Version: 0.1.8
   Author: Martin Wedepohl
   Author URI: https://wedepohlengineering.com
   License: GPLv3 or later
@@ -145,7 +145,7 @@ class NSAAOptions {
         remove_action('wp_head', 'wp_oembed_add_discovery_links');              // Remove oembed discovery tags.
 
         // Allow REST only for logged in users
-        add_filter('rest_authentication_errors', [$this, 'only_authorised_rest_access']);
+        //add_filter('rest_authentication_errors', [$this, 'only_authorised_rest_access']);
 
         // All the plugin classes
         new NSAADebug();
@@ -293,20 +293,20 @@ class NSAAOptions {
 
     }
 
-    /**
-     * Allow only logged in users to access the REST API
-     */
-    public function only_authorised_rest_access( $result ) {
-        if( ! is_user_logged_in() ) {
-            return new \WP_Error(
-                'rest_unauthorised',
-                __( 'Only authenticated users can access the REST API.', NSAAConfig::TEXT_DOMAIN ), 
-                array( 'status' => rest_authorization_required_code() )
-            );
-        }
+    // /**
+    //  * Allow only logged in users to access the REST API
+    //  */
+    // public function only_authorised_rest_access( $result ) {
+    //     if( ! is_user_logged_in() ) {
+    //         return new \WP_Error(
+    //             'rest_unauthorised',
+    //             __( 'Only authenticated users can access the REST API.', NSAAConfig::TEXT_DOMAIN ), 
+    //             array( 'status' => rest_authorization_required_code() )
+    //         );
+    //     }
     
-        return $result;
-    }
+    //     return $result;
+    // }
 
 }
 new NSAAOptions();

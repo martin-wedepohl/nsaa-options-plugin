@@ -2,7 +2,7 @@
 namespace NSAAOptions;
 defined( 'ABSPATH' ) or die( '' );
 class NSAAConfig {
-    const VERSION                   = '0.1.7';
+    const VERSION                   = '0.1.8';
     
 	const MINIMUM_WORDPRESS_VERSION = '4.9';
     const MINIMUM_PHP_VERSION       = '5.6';

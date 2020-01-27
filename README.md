@@ -5,7 +5,7 @@
 * Tags: options, wedepohl engineering
 * Requires at least: 4.7 or higher
 * Tested up to: 5.3.2
-* Stable tag: 0.1.4
+* Stable tag: 0.1.8
 * License: [GPLv3 or later](https://www.gnu.org/licenses/gpl-3.0.html)
 
 ### Description
@@ -34,6 +34,9 @@ composer dump
 ### Screenshots
 
 ### Changelog
+
+###### 0.1.8 2020-01-26
+* FIX: Commented out disabling REST API since Contact Form 7 requires it
 
 ###### 0.1.7 2019-12-29
 * Display gratitude nights on the events page and calendar

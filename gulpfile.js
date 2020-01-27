@@ -62,7 +62,7 @@ var distIncludes  = baseDir + 'includes';
 var distTemplates  = baseDir + 'templates';
 var vendorWatch   = devDir + 'vendor/**/*.*';
 var assetsWatch   = devDir + 'assets/**/*.*';
-var rootFiles      = ['./LICENSE', './README.md', 'composer.json', './gulpfile.js', './package.json','./readme.txt'];
+var rootFiles      = ['./LICENSE', './README.md'];
 var rootPhp       = './*.php';
 //var imageWatch   = devDir + 'src/images/**/*';
 
