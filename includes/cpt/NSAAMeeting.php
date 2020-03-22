@@ -35,7 +35,7 @@ class NSAAMeeting {
      * 
      * All the data will be sanitized.
      *  
-     * @param int $post_id        - The ID of the post
+     * @param int $post_id The ID of the post
      * 
      * @return array - Associative array with all the meta data
      */
@@ -53,6 +53,7 @@ class NSAAMeeting {
                 'city' => '',
                 'time' => '',
                 'monthly' => '',
+                'zoom' => '',
                 'additional' => '',
                 'dow' => [],
                 'legend' => [],
@@ -66,19 +67,20 @@ class NSAAMeeting {
         $meeting_data['city'] = sanitize_text_field($meeting_data['city']);
         $meeting_data['time'] = sanitize_text_field($meeting_data['time']);
         $meeting_data['monthly'] = sanitize_text_field($meeting_data['monthly']);
+        $meeting_data['zoom'] = sanitize_text_field($meeting_data['zoom']);
         $meeting_data['additional'] = sanitize_textarea_field($meeting_data['additional']);
-        if(count($meeting_data['dow']) > 0) {
-            foreach($meeting_data['dow'] as $id => $dow) {
+        if (count($meeting_data['dow']) > 0) {
+            foreach ($meeting_data['dow'] as $id => $dow) {
                 $meeting_data['dow'][$id] = sanitize_text_field($dow);
             }
         }
-        if(count($meeting_data['legend']) > 0) {
-            foreach($meeting_data['legend'] as $id => $legend) {
+        if (count($meeting_data['legend']) > 0) {
+            foreach ($meeting_data['legend'] as $id => $legend) {
                 $meeting_data['legend'][$id] = sanitize_text_field($legend);
             }
         }
-        if(count($meeting_data['notheld']) > 0) {
-            foreach($meeting_data['notheld'] as $id => $notheld) {
+        if (count($meeting_data['notheld']) > 0) {
+            foreach ($meeting_data['notheld'] as $id => $notheld) {
                 $meeting_data['notheld'][$id] = sanitize_text_field($notheld);
             }
         }
@@ -95,22 +97,22 @@ class NSAAMeeting {
         $legendId = NSAALegend::getServiceLegend();
 
         $meetings = [];
-        # Check if there are any posts
-        if(isset($posts)) {
-            foreach($posts as $post) {
+        // Check if there are any posts
+        if (isset($posts)) {
+            foreach ($posts as $post) {
                 $id = $post->ID;
                 $meta = self::get_meeting_data($id);
-                if('' === $dow) {
-                    if(true === NSAAMeeting::findIdInArray($legendId, $meta['legend']) && false === $includeservice) {
+                if ('' === $dow) {
+                    if (true === NSAAMeeting::findIdInArray($legendId, $meta['legend']) && false === $includeservice) {
                         continue;
                     }
                     $meetings[$id] = $meta;
                     $meetings[$id]['name'] = get_the_title($id);
                     $meetings[$id]['id'] = $id;
                 } else {
-                    if(in_array($dow, $meta['dow'])) {
-                        if(true === NSAAMeeting::findIdInArray($legendId, $meta['legend']) && false === $includeservice) {
-                        continue;
+                    if (in_array($dow, $meta['dow'])) {
+                        if (true === NSAAMeeting::findIdInArray($legendId, $meta['legend']) && false === $includeservice) {
+                            continue;
                         }
                         $meetings[$id] = $meta;
                         $meetings[$id]['name'] = get_the_title($id);
@@ -144,14 +146,14 @@ class NSAAMeeting {
         $legendId = NSAALegend::getServiceLegend();
 
         $meetings = [];
-        # Check if there are any posts
-        if(isset($posts)) {
-            foreach($posts as $post) {
+        // Check if there are any posts
+        if (isset($posts)) {
+            foreach ($posts as $post) {
                 $id = $post->ID;
                 $meta = self::get_meeting_data($id);
-                if(true === NSAAMeeting::findIdInArray($legendId, $meta['legend'])) {
-                    if('' !== $name) {
-                        if($name === get_the_title($id)) {
+                if (true === NSAAMeeting::findIdInArray($legendId, $meta['legend'])) {
+                    if ('' !== $name) {
+                        if ($name === get_the_title($id)) {
                             $meetings[$id] = $meta;
                             $meetings[$id]['name'] = get_the_title($id);
                             $meetings[$id]['id'] = $id;
@@ -165,7 +167,7 @@ class NSAAMeeting {
             }
         }
 
-        usort( $meetings, [NSAAMeeting::class, 'sortByCity']);
+        usort($meetings, [NSAAMeeting::class, 'sortByCity']);
 
         return $meetings;
     }
@@ -177,11 +179,11 @@ class NSAAMeeting {
      */
     private static function sortByname( $a, $b ) {
 
-        if($a['name'] === $b['name']) {
+        if ($a['name'] === $b['name']) {
             // Names are equal sort by time
             $time1 = strtotime($a['time']);
             $time2 = strtotime($b['time']);
-            if($time1 === $time2) {
+            if ($time1 === $time2) {
                 // Times are equal sort by city
                 return ($a['city'] <= $b['city']) ? -1 : 1;
             } else {
@@ -200,11 +202,11 @@ class NSAAMeeting {
      */
     private static function sortByCity( $a, $b ) {
 
-        if($a['city'] === $b['city']) {
+        if ($a['city'] === $b['city']) {
             // Cities are equal sort by time
             $time1 = strtotime($a['time']);
             $time2 = strtotime($b['time']);
-            if($time1 === $time2) {
+            if ($time1 === $time2) {
                 // Times are equal sort by name
                 return ($a['name'] <= $b['name']) ? -1 : 1;
             } else {
@@ -226,9 +228,9 @@ class NSAAMeeting {
         $time1 = strtotime($a['time']);
         $time2 = strtotime($b['time']);
 
-        if($time1 === $time2) {
+        if ($time1 === $time2) {
             // Times are equal sort by city
-            if($a['city'] === $b['city']) {
+            if ($a['city'] === $b['city']) {
                 // Cities are equal sort by name
                 return ($a['name'] <= $b['name']) ? -1 : 1;
             } else {
@@ -260,14 +262,14 @@ class NSAAMeeting {
             $spaces = -2;
         }
 
-        if(1 === count($dow)) {
+        if (1 === count($dow)) {
             $day = (isset($dow_array[$dow[0]]) ? $dow_array[$dow[0]] : '');
         } else {
             $day = '';
-            foreach($dow as $id => $the_day) {
+            foreach ($dow as $id => $the_day) {
                 $day .= (isset($dow_array[$the_day]) ? ($dow_array[$the_day] . $delimiter) : '');
             }
-            if('' !== $day) {
+            if ('' !== $day) {
                 $day = substr($day, 0, $spaces);
             }
         }
@@ -384,19 +386,27 @@ class NSAAMeeting {
 
         <label for="city">City <small>(required)</small>: </label>
         <?php
-            self::$_cities = NSAACity::getCities();
-            $html = '<select name="city" id="city" required class="widefat">';
-            foreach(self::$_cities as $id => $city) {
-                $selected = '';
-                if($meeting_data['city'] === $id) {
-                    $selected = 'selected';
-                }
-                $html .= '<option value="' . $id . '" ' . $selected .'>' . $city . '</option>';
+        self::$_cities = NSAACity::getCities();
+        $html = '<select name="city" id="city" required class="widefat">';
+        foreach (self::$_cities as $id => $city) {
+            $selected = '';
+            if ($meeting_data['city'] === $id) {
+                $selected = 'selected';
             }
-            $html .= '</select>';
-            echo $html;
+            $html .= '<option value="' . $id . '" ' . $selected .'>' . $city . '</option>';
+        }
+        $html .= '</select>';
+        echo $html;
         ?>
         <br /><br />
+
+        <?php
+            $zoom = $meeting_data['zoom'];
+            // Format Zoom ID with 3 digits and a space
+            $zoom = substr($zoom, 0, 3) . ' ' . substr($zoom, 3, 3) . ' ' . substr($zoom, 6);
+        ?>
+        <label for="zoom">Zoom Meeting ID: </label>
+        <input type="text" id="zoom" name="zoom" value="<?php echo ($zoom); ?>" class="widefat", placeholder='Zoom ID'><br /><br />
 
         <label for="dow">Meeting Day <small>(required)</small>: </label><br />
         <input type="checkbox" id="dow0" name="dow[]" value="0" <?php echo (in_array('0', $meeting_data['dow']) ? 'checked' : ''); ?>> Sun<br />
@@ -438,12 +448,12 @@ class NSAAMeeting {
             Meeting Legend:
         </label><br />
         <?php
-            self::$_legends = NSAALegend::getLegends();
-            $html = '';
-            foreach(self::$_legends as $id => $legend) {
-                $html .= '<input type="checkbox" id="legend" name="legend[]" value="' . $id . '" ' . (in_array($id, $meeting_data['legend']) ? 'checked' : '') . '> ' . $legend['name'] . ' (' . $id . ')<br />';
-            }
-            echo $html;
+        self::$_legends = NSAALegend::getLegends();
+        $html = '';
+        foreach (self::$_legends as $id => $legend) {
+            $html .= '<input type="checkbox" id="legend" name="legend[]" value="' . $id . '" ' . (in_array($id, $meeting_data['legend']) ? 'checked' : '') . '> ' . $legend['name'] . ' (' . $id . ')<br />';
+        }
+        echo $html;
         ?>
         <br />
 
@@ -456,8 +466,8 @@ class NSAAMeeting {
     /**
      * Save the meta box data 
      * 
-     * @param int $post_id - The post ID
-     * @param array $post - The post
+     * @param int   $post_id - The post ID
+     * @param array $post    - The post
      * 
      * @return int - The post ID
      */
@@ -479,29 +489,33 @@ class NSAAMeeting {
         $meeting_meta['city'] = isset($_POST['city']) ? sanitize_text_field($_POST['city']) : '';
         $meeting_meta['time'] = isset($_POST['time']) ? sanitize_text_field($_POST['time']) : '';
         $meeting_meta['monthly'] = isset($_POST['monthly']) ? sanitize_text_field($_POST['monthly']) : '';
+        $meeting_meta['zoom'] = isset($_POST['zoom']) ? sanitize_text_field($_POST['zoom']) : '';
+        // Remove spaces and dashes from Zoom  id
+        $meeting_meta['zoom'] = str_replace(' ', '', $meeting_meta['zoom']);
+        $meeting_meta['zoom'] = str_replace('-', '', $meeting_meta['zoom']);
         $meeting_meta['additional'] = isset($_POST['additional']) ? sanitize_textarea_field($_POST['additional']) : '';
-        if(isset($_POST['notheld'])) {
-            if(count($_POST['notheld']) > 0) {
+        if (isset($_POST['notheld'])) {
+            if (count($_POST['notheld']) > 0) {
                 $notheld = [];
-                foreach($_POST['notheld'] as $id => $value) {
+                foreach ($_POST['notheld'] as $id => $value) {
                     $notheld[$id] = sanitize_text_field($value);
                 }
                 $meeting_meta['notheld'] = $notheld;
             }
         }
-        if(isset($_POST['legend'])) {
-            if(count($_POST['legend']) > 0) {
+        if (isset($_POST['legend'])) {
+            if (count($_POST['legend']) > 0) {
                 $legends = [];
-                foreach($_POST['legend'] as $id => $value) {
+                foreach ($_POST['legend'] as $id => $value) {
                     $legends[$id] = sanitize_text_field($value);
                 }
                 $meeting_meta['legend'] = $legends;
             }
         }
-        if(isset($_POST['dow'])) {
-            if(count($_POST['dow']) > 0) {
+        if (isset($_POST['dow'])) {
+            if (count($_POST['dow']) > 0) {
                 $meeting_days = [];
-                foreach($_POST['dow'] as $id => $value) {
+                foreach ($_POST['dow'] as $id => $value) {
                     $meeting_days[$id] = sanitize_text_field($value);
                 }
                 $meeting_meta['dow'] = $meeting_days;
@@ -528,20 +542,20 @@ class NSAAMeeting {
 
     public function _meeting_admin_notices() {
         // If there are no errors, then we'll exit the function
-        if ( ! ( $errors = get_transient( 'nsaa_settings_errors' ) ) ) {
-          return;
+        if (! ( $errors = get_transient('nsaa_settings_errors') ) ) {
+            return;
         }
         // Otherwise, build the list of errors that exist in the settings errores
         $message = '<div id="nsaa-error-message" class="error below-h2"><ul>';
         foreach ( $errors as $error ) {
-          $message .= '<li>' . $error['message'] . '</li>';
+            $message .= '<li>' . $error['message'] . '</li>';
         }
         $message .= '</ul></div><!-- #error -->';
         // Write them out to the screen
         echo $message;
         // Clear and the transient and unhook any other notices so we don't see duplicate messages
-        delete_transient( 'nsaa_settings_errors' );
-        remove_action( 'admin_notices', '_location_admin_notices' );
+        delete_transient('nsaa_settings_errors');
+        remove_action('admin_notices', '_location_admin_notices');
     }
 
     /**
@@ -581,6 +595,7 @@ class NSAAMeeting {
         //This is not a meeting, do nothing with $template.
         return $template;
     }
+
     function load_archive($template) {
         global $post;
         // Check if this is a meeting.
@@ -626,6 +641,7 @@ class NSAAMeeting {
         $newcols['location'] = __('Location', NSAAConfig::TEXT_DOMAIN);
         $newcols['address'] = __('Address', NSAAConfig::TEXT_DOMAIN);
         $newcols['city'] = __('City', NSAAConfig::TEXT_DOMAIN);
+        $newcols['zoom'] = __('Zoom ID', NSAAConfig::TEXT_DOMAIN);
         $newcols['dow'] = __('Meeting Day', NSAAConfig::TEXT_DOMAIN);
         $newcols['time'] = __('Meeting Time', NSAAConfig::TEXT_DOMAIN);
         $newcols['legend'] = __('Meeting Legend', NSAAConfig::TEXT_DOMAIN);
@@ -643,36 +659,40 @@ class NSAAMeeting {
      * Display the meta data associated with a post on the administration table
      * 
      * @param string $column_name - The header of the column
-     * @param int $post_id - The ID of the post being displayed
+     * @param int    $post_id     - The ID of the post being displayed
      */
     function table_content($column_name, $post_id) {
         $meeting_data = self::get_meeting_data($post_id, false);
         
         if ('location' === $column_name) {
             echo $meeting_data['location'];
-        } else if('address' === $column_name) {
+        } else if ('address' === $column_name) {
             echo $meeting_data['address'];
-        } else if('city' === $column_name) {
-            if(0 === count(self::$_cities)) {
+        } else if ('zoom' === $column_name) {
+            $zoom = $meeting_data['zoom'];
+            $zoom = substr($zoom, 0, 3) . ' ' . substr($zoom, 3, 3) . ' ' . substr($zoom, 6);
+            echo $zoom;
+        } else if ('city' === $column_name) {
+            if (0 === count(self::$_cities)) {
                 self::$_cities = NSAACity::getCities();
             }
             echo self::$_cities[$meeting_data['city']];
-        } else if('dow' === $column_name) {
+        } else if ('dow' === $column_name) {
             $dow = '';
-            if(isset($meeting_data['dow'])) {
-                if(count($meeting_data['dow']) > 0) {
+            if (isset($meeting_data['dow'])) {
+                if (count($meeting_data['dow']) > 0) {
                     $dow = self::getDOW($meeting_data['dow'], true);
                 }
             }
             echo $dow;
-        } else if('time' === $column_name) {
+        } else if ('time' === $column_name) {
             echo $meeting_data['time'];
-        } else if('legend' === $column_name) {
+        } else if ('legend' === $column_name) {
             $legend = '';
-            if(isset($meeting_data['legend'])) {
-                if(count($meeting_data['legend']) > 0) {
+            if (isset($meeting_data['legend'])) {
+                if (count($meeting_data['legend']) > 0) {
                     $legend = '';
-                    foreach($meeting_data['legend'] as $the_legend) {
+                    foreach ($meeting_data['legend'] as $the_legend) {
                         $legend .= $the_legend . ',';
                     }
                     $legend = substr($legend, 0, -1);
