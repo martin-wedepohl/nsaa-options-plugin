@@ -169,6 +169,27 @@ class NSAAShortcodes {
 <?php
     }
 
+    private function createZoomLink( $meeting_data ) {
+        
+        $zoom_data = '';
+        if ('' !== $meeting_data['zoom']) {
+            $zoom = $meeting_data['zoom'];
+            $zoomid = substr($zoom, 0, 3) . ' ' . substr($zoom, 3, 3) . ' ' . substr($zoom, 6);
+            if ('' === $meeting_data['zoomlink']) {
+                $zoom = '<a href="https://zoom.us/j/' . $meeting_data['zoom'];
+            } else {
+                $zoom = '<a href="' . $meeting_data['zoomlink'];
+            }
+            $zoom_data .= $zoom . '" target="_blank" title="Open Zoom Online Meeting">Zoom Online Meeting</a><br>Zoom ID: ' . $zoomid;
+            if ('' !== $meeting_data['zoompw']) {
+                $zoom_data .= '<br>Password: ' . $meeting_data['zoompw'];
+            }
+        }
+
+        return $zoom_data;
+
+    }
+
     /**
      * Function constructor
      */
@@ -240,7 +261,7 @@ class NSAAShortcodes {
             $legend_str = substr( $legend_str, 0, -1 );
         }
         if ('' !== $meeting_data['zoom']) {
-            $legend_str = 'On-Line';
+            $legend_str = 'Online';
         }
 
         // Get all the cities
@@ -249,11 +270,8 @@ class NSAAShortcodes {
         // Get the day(s) of the week that the meetings are held
         $day = NSAAMeeting::getDOW( $dow );
 
-        $zoom = '';
         if ('' !== $meeting_data['zoom']) {
-            $zoom = $meeting_data['zoom'];
-            $zoom = substr($zoom, 0, 3) . ' ' . substr($zoom, 3, 3) . ' ' . substr($zoom, 6);
-            $address = '<a href="https://zoom.us/j/' . $meeting_data['zoom'] . '" target="_blank" title="Open Zoom On-Line Meeting">Zoom On-Line Meeting</a> - Zoom ID: ' . $zoom;
+            $address = $this->createZoomLink($meeting_data);
         } else {
             // Get all the information to display
             $city = (isset($cities[$city_id]) ? $cities[$city_id] . ', BC' : '');
@@ -336,10 +354,8 @@ class NSAAShortcodes {
             }
             $html .= '<p>' . $meeting['time'] . ' - <a href="' . esc_url( get_the_permalink( $meeting['id'] ) ) . '" title="Visit ' . $meeting['name'] . '">' . strtoupper( $meeting['name'] ) . '</a>' . $legend_str . '<br />';
             if ('' !== $meeting['zoom']) {
-                $zoom = $meeting['zoom'];
-                $zoom = substr($zoom, 0, 3) . ' ' . substr($zoom, 3, 3) . ' ' . substr($zoom, 6);
-                $address = '<a href="https://zoom.us/j/' . $meeting['zoom'] . '" target="_blank" title="Open Zoom On-Line Meeting">Zoom On-Line Meeting</a> - Zoom ID: ' . $zoom;
-                $html .= $address . '<br />';
+                $html .= $this->createZoomLink($meeting);
+                $html .= '<br>';
             } else {
                 $location = ('' === $meeting['location']) ? '' : $meeting['location'] . ', ';
                 $html .= $location . ' ' . $meeting['address'] . '<br />';
@@ -434,10 +450,8 @@ class NSAAShortcodes {
 
                 $html .= '<p>Next <a href="' . esc_url( get_the_permalink( $meeting['id'] ) ) . '" title="Visit ' . $meeting['name'] . '">' . strtoupper( $meeting['name'] ) . '</a> - ' . $meeting_date . '<br />';
                 if ('' !== $meeting['zoom']) {
-                    $zoom = $meeting['zoom'];
-                    $zoom = substr($zoom, 0, 3) . ' ' . substr($zoom, 3, 3) . ' ' . substr($zoom, 6);
-                    $zoom = '<a href="https://zoom.us/j/' . $meeting['zoom'] . '" target="_blank" title="Open Zoom On-Line Meeting">Zoom On-Line Meeting</a> - Zoom ID: ' . $zoom;
-                    $html .= $zoom . '<br />';
+                    $html .= $this->createZoomLink($meeting);
+                    $html .= '<br>';
                 } else {
                     $location  = ('' === $meeting['location']) ? '' : $meeting['location'] . ', ';
                     $html .= $location . ' ' . $meeting['address'] . ', ' . $cities[$meeting['city']] . '<br />';
@@ -492,10 +506,8 @@ class NSAAShortcodes {
             $location  = ('' === $meeting['location']) ? '' : $meeting['location'] . ', ';
             $html .= '<p><a href="' . esc_url( get_the_permalink( $meeting['id'] ) ) . '" title="Visit ' . $meeting['name'] . '">' . strtoupper( $meeting['name'] ) . '</a> - ' . $monthly_str . $dow . ' of each month @ ' . $meeting['time'] . '<br />';
             if ('' !== $meeting['zoom']) {
-                $zoom = $meeting['zoom'];
-                $zoom = substr($zoom, 0, 3) . ' ' . substr($zoom, 3, 3) . ' ' . substr($zoom, 6);
-                $zoom = '<a href="https://zoom.us/j/' . $meeting['zoom'] . '" target="_blank" title="Open Zoom On-Line Meeting">Zoom On-Line Meeting</a> - Zoom ID: ' . $zoom;
-                $html .= $zoom . '<br />';
+                $html .= $this->createZoomLink($meeting);
+                $html .= '<br>';
             } else {
                 $html .= $location . ' ' . $meeting['address'] . ', ' . $cities[$meeting['city']] . '<br />';
             }
@@ -663,10 +675,8 @@ class NSAAShortcodes {
                     }
                     $html .= $meeting['time'] . ' - <a href="' . esc_url( get_the_permalink( $meeting['id'] ) ) . '" title="Visit ' . $meeting['name'] . '">' . strtoupper( $meeting['name'] ) . '</a>' . $legend_str . '<br />';
                     if ('' !== $meeting['zoom']) {
-                        $zoom = $meeting['zoom'];
-                        $zoom = substr($zoom, 0, 3) . ' ' . substr($zoom, 3, 3) . ' ' . substr($zoom, 6);
-                        $zoom = '<a href="https://zoom.us/j/' . $meeting['zoom'] . '" target="_blank" title="Open Zoom On-Line Meeting">Zoom On-Line Meeting</a> - Zoom ID: ' . $zoom;
-                        $html .= $zoom . '<br />';
+                        $html .= $this->createZoomLink($meeting);
+                        $html .= '<br>';
                     } else {
                         $location = ('' === $meeting['location']) ? '' : $meeting['location'] . ', ';
                         $html .= $location . ' ' . $meeting['address'] . ', ' . $city . '<br />';

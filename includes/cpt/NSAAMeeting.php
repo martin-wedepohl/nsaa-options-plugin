@@ -20,8 +20,8 @@ class NSAAMeeting {
     
     public static function findIdInArray($needle, $haystack) {
 
-        foreach($haystack as $value) {
-            if($needle === $value) {
+        foreach ($haystack as $value) {
+            if ($needle === $value) {
                 return true;
             }
         }
@@ -54,6 +54,8 @@ class NSAAMeeting {
                 'time' => '',
                 'monthly' => '',
                 'zoom' => '',
+                'zoompw' => '',
+                'zoomlink' => '',
                 'additional' => '',
                 'dow' => [],
                 'legend' => [],
@@ -68,6 +70,8 @@ class NSAAMeeting {
         $meeting_data['time'] = sanitize_text_field($meeting_data['time']);
         $meeting_data['monthly'] = sanitize_text_field($meeting_data['monthly']);
         $meeting_data['zoom'] = sanitize_text_field($meeting_data['zoom']);
+        $meeting_data['zoompw'] = sanitize_text_field($meeting_data['zoompw']);
+        $meeting_data['zoomlink'] = sanitize_text_field($meeting_data['zoomlink']);
         $meeting_data['additional'] = sanitize_textarea_field($meeting_data['additional']);
         if (count($meeting_data['dow']) > 0) {
             foreach ($meeting_data['dow'] as $id => $dow) {
@@ -407,6 +411,10 @@ class NSAAMeeting {
         ?>
         <label for="zoom">Zoom Meeting ID: </label>
         <input type="text" id="zoom" name="zoom" value="<?php echo ($zoom); ?>" class="widefat", placeholder='Zoom ID'><br /><br />
+        <label for="zoom">Zoom Meeting Password: </label>
+        <input type="text" id="zoompw" name="zoompw" value="<?php echo ($meeting_data['zoompw']); ?>" class="widefat", placeholder='Zoom Password'><br /><br />
+        <label for="zoom">Zoom Meeting Link: </label>
+        <input type="text" id="zoomlink" name="zoomlink" value="<?php echo ($meeting_data['zoomlink']); ?>" class="widefat", placeholder='Zoom Link'><br /><br />
 
         <label for="dow">Meeting Day <small>(required)</small>: </label><br />
         <input type="checkbox" id="dow0" name="dow[]" value="0" <?php echo (in_array('0', $meeting_data['dow']) ? 'checked' : ''); ?>> Sun<br />
@@ -493,6 +501,8 @@ class NSAAMeeting {
         // Remove spaces and dashes from Zoom  id
         $meeting_meta['zoom'] = str_replace(' ', '', $meeting_meta['zoom']);
         $meeting_meta['zoom'] = str_replace('-', '', $meeting_meta['zoom']);
+        $meeting_meta['zoompw'] = isset($_POST['zoompw']) ? sanitize_text_field($_POST['zoompw']) : '';
+        $meeting_meta['zoomlink'] = isset($_POST['zoomlink']) ? sanitize_text_field($_POST['zoomlink']) : '';
         $meeting_meta['additional'] = isset($_POST['additional']) ? sanitize_textarea_field($_POST['additional']) : '';
         if (isset($_POST['notheld'])) {
             if (count($_POST['notheld']) > 0) {
@@ -642,6 +652,8 @@ class NSAAMeeting {
         $newcols['address'] = __('Address', NSAAConfig::TEXT_DOMAIN);
         $newcols['city'] = __('City', NSAAConfig::TEXT_DOMAIN);
         $newcols['zoom'] = __('Zoom ID', NSAAConfig::TEXT_DOMAIN);
+        $newcols['zoompw'] = __('Zoom PWD', NSAAConfig::TEXT_DOMAIN);
+        $newcols['zoomlink'] = __('Zoom Link', NSAAConfig::TEXT_DOMAIN);
         $newcols['dow'] = __('Meeting Day', NSAAConfig::TEXT_DOMAIN);
         $newcols['time'] = __('Meeting Time', NSAAConfig::TEXT_DOMAIN);
         $newcols['legend'] = __('Meeting Legend', NSAAConfig::TEXT_DOMAIN);
@@ -672,6 +684,12 @@ class NSAAMeeting {
             $zoom = $meeting_data['zoom'];
             $zoom = substr($zoom, 0, 3) . ' ' . substr($zoom, 3, 3) . ' ' . substr($zoom, 6);
             echo $zoom;
+        } else if ('zoompw' === $column_name) {
+            $zoompw = $meeting_data['zoompw'];
+            echo $zoompw;
+        } else if ('zoomlink' === $column_name) {
+            $zoomlink = $meeting_data['zoomlink'];
+            echo $zoomlink;
         } else if ('city' === $column_name) {
             if (0 === count(self::$_cities)) {
                 self::$_cities = NSAACity::getCities();
