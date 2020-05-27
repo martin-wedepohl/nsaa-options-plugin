@@ -260,8 +260,12 @@ class NSAAShortcodes {
         if( '' !== $legend_str ) {
             $legend_str = substr( $legend_str, 0, -1 );
         }
-        if ('' !== $meeting_data['zoom']) {
-            $legend_str = 'Online';
+        if ('1' === $meeting_data['zoomandinperson'] ) {
+            $legend_str .= ', Online';
+        } else {
+            if ('' !== $meeting_data['zoom']) {
+                $legend_str = 'Online';
+            }
         }
 
         // Get all the cities
@@ -271,13 +275,16 @@ class NSAAShortcodes {
         $day = NSAAMeeting::getDOW( $dow );
 
         $zoom = '';
-        if ('' !== $meeting_data['zoom']) {
+        if ('' !== $meeting_data['zoom'] && '1' !== $meeting_data['zoomandinperson']) {
             $address = $this->createZoomLink($meeting_data);
             $zoom    = $address;
         } else {
             // Get all the information to display
             $city = (isset($cities[$city_id]) ? $cities[$city_id] . ', BC' : '');
             $address = $location . $meeting_data['address'] . (('' === $city) ? '' : ', ' . $city);
+            if ( '1' === $meeting_data['zoomandinperson']) {
+                $zoom = $this->createZoomLink($meeting_data);
+            }
         }
 
         // Create the HTML information
@@ -295,9 +302,12 @@ class NSAAShortcodes {
         $settings = new NSAASettings();
         $wantgooglemaps = $settings->get_options('use_google_maps');
 
-        if (1 == $wantgooglemaps && '' === $zoom) {
+        if (1 == $wantgooglemaps && $zoom !== $address) {
             $link = 'https://maps.google.com/?q=' . $address;
             $html .= '<a href="' . $link . '" target="_blank" title="View in Map">View in Map</a>';
+        }
+        if ('1' === $meeting_data['zoomandinperson'] && '' !== $zoom) {
+            $html .= '<br>Also ' . $zoom;
         }
 
         do_action( 'nsaa_after_get_meeting' );
@@ -352,11 +362,15 @@ class NSAAShortcodes {
                 $legend_str = substr( $legend_str, 0, -1 );
                 $legend_str = ' (' . $legend_str . ')';
             }
-            if ('' !== $meeting['zoom']) {
-                $legend_str = ' (OL)';
+            if ( '1' === $meeting['zoomandinperson'] ) {
+                $legend_str .= ' (OL)';
+            } else {
+                if ('' !== $meeting['zoom']) {
+                    $legend_str = ' (OL)';
+                }
             }
             $html .= '<p>' . $meeting['time'] . ' - <a href="' . esc_url( get_the_permalink( $meeting['id'] ) ) . '" title="Visit ' . $meeting['name'] . '">' . strtoupper( $meeting['name'] ) . '</a>' . $legend_str . '<br />';
-            if ('' !== $meeting['zoom']) {
+            if ( '' !== $meeting['zoom'] && '1' !== $meeting['zoomandinperson'] ) {
                 $html .= $this->createZoomLink($meeting);
                 $html .= '<br>';
             } else {
@@ -371,6 +385,9 @@ class NSAAShortcodes {
                 if (1 == $wantgooglemaps) {
                     $link = 'https://maps.google.com/?q=' . $location . ' ' . $meeting['address'] . ', ' . $cities[$city];
                     $html .= '<a href="' . $link . '" target="_blank" title="View in Map">View in Map</a>';
+                }
+                if ( '1' === $meeting['zoomandinperson'] ) {
+                    $html .= '<br>Also ' . $this->createZoomLink($meeting) . '<br>';
                 }
             }
         }
@@ -697,8 +714,13 @@ class NSAAShortcodes {
                         $legend_str = substr( $legend_str, 0, -1 );
                         $legend_str = ' (' . $legend_str . ')';
                     }
+
                     if ('' !== $meeting['zoom']) {
-                        $legend_str = ' (OL)';
+                        if ('1' === $meeting['zoomandinperson']) {
+                            $legend_str .= ', (OL)';
+                        } else {
+                            $legend_str = ' (OL)';
+                        }
                     }
 
                     $html .= '<p>';
@@ -707,7 +729,8 @@ class NSAAShortcodes {
                         $html .= '<strong>***** ' . strtoupper($meeting['name']) . ' Gratitude Meeting *****</strong> @ ' . $gratitudenight['gtime'] . ' ' . $gratitudenight['additional'] . '<br />';
                     }
                     $html .= $meeting['time'] . ' - <a href="' . esc_url( get_the_permalink( $meeting['id'] ) ) . '" title="Visit ' . $meeting['name'] . '">' . strtoupper( $meeting['name'] ) . '</a>' . $legend_str . '<br />';
-                    if ('' !== $meeting['zoom']) {
+
+                    if ('' !== $meeting['zoom'] && '1' !== $meeting['zoomandinperson']) {
                         $html .= $this->createZoomLink($meeting);
                         $html .= '<br>';
                     } else {
@@ -719,11 +742,15 @@ class NSAAShortcodes {
                         $settings = new NSAASettings();
                         $wantgooglemaps = $settings->get_options('use_google_maps');
 
-                        if (1 == $wantgooglemaps && '' === $meeting['zoom']) {
+                        if (1 == $wantgooglemaps) {
                             $link = 'https://maps.google.com/?q=' . $location . ' ' . $meeting['address'] . ', ' . $city;
                             $html .= '<a href="' . $link . '" target="_blank" title="View in Map">View in Map</a>';
                         }
+                        if ('1' === $meeting['zoomandinperson'] && '' !== $meeting['zoom']) {
+                            $html .= '<br>Also ' . $this->createZoomLink($meeting) . '<br>';
+                        }
                     }
+
                     if ('' !== $gratitudenight && true === $after) {
                         $html .= '<strong>***** ' . strtoupper($meeting['name']) . ' Gratitude Meeting *****</strong> @ ' . $gratitudenight['gtime'] . ' ' . $gratitudenight['additional'];
                     }

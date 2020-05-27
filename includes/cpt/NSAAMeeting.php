@@ -56,6 +56,7 @@ class NSAAMeeting {
                 'zoom' => '',
                 'zoompw' => '',
                 'zoomlink' => '',
+                'zoomandinperson' => '',
                 'additional' => '',
                 'dow' => [],
                 'legend' => [],
@@ -72,6 +73,7 @@ class NSAAMeeting {
         $meeting_data['zoom'] = sanitize_text_field($meeting_data['zoom']);
         $meeting_data['zoompw'] = sanitize_text_field($meeting_data['zoompw']);
         $meeting_data['zoomlink'] = sanitize_text_field($meeting_data['zoomlink']);
+        $meeting_data['zoomandinperson'] = sanitize_text_field($meeting_data['zoomandinperson']);
         $meeting_data['additional'] = sanitize_textarea_field($meeting_data['additional']);
         if (count($meeting_data['dow']) > 0) {
             foreach ($meeting_data['dow'] as $id => $dow) {
@@ -415,6 +417,8 @@ class NSAAMeeting {
         <input type="text" id="zoompw" name="zoompw" value="<?php echo ($meeting_data['zoompw']); ?>" class="widefat", placeholder='Zoom Password'><br /><br />
         <label for="zoom">Zoom Meeting Link: </label>
         <input type="text" id="zoomlink" name="zoomlink" value="<?php echo ($meeting_data['zoomlink']); ?>" class="widefat", placeholder='Zoom Link'><br /><br />
+        <label for="zoomandinperson">Both Zoom and In Person Meeting: </label><br />
+        <input type="checkbox" id="zoomandinperson" name="zoomandinperson" value="1" <?php echo (('1' === $meeting_data['zoomandinperson']) ? 'checked' : ''); ?>> Both Running?<br /><br />
 
         <label for="dow">Meeting Day <small>(required)</small>: </label><br />
         <input type="checkbox" id="dow0" name="dow[]" value="0" <?php echo (in_array('0', $meeting_data['dow']) ? 'checked' : ''); ?>> Sun<br />
@@ -503,6 +507,7 @@ class NSAAMeeting {
         $meeting_meta['zoom'] = str_replace('-', '', $meeting_meta['zoom']);
         $meeting_meta['zoompw'] = isset($_POST['zoompw']) ? sanitize_text_field($_POST['zoompw']) : '';
         $meeting_meta['zoomlink'] = isset($_POST['zoomlink']) ? sanitize_text_field($_POST['zoomlink']) : '';
+        $meeting_meta['zoomandinperson'] = isset($_POST['zoomandinperson']) ? sanitize_text_field($_POST['zoomandinperson']) : '';
         $meeting_meta['additional'] = isset($_POST['additional']) ? sanitize_textarea_field($_POST['additional']) : '';
         if (isset($_POST['notheld'])) {
             if (count($_POST['notheld']) > 0) {
@@ -654,6 +659,7 @@ class NSAAMeeting {
         $newcols['zoom'] = __('Zoom ID', NSAAConfig::TEXT_DOMAIN);
         $newcols['zoompw'] = __('Zoom PWD', NSAAConfig::TEXT_DOMAIN);
         $newcols['zoomlink'] = __('Zoom Link', NSAAConfig::TEXT_DOMAIN);
+        $newcols['zoomandinperson'] = __('Zoom/In Person', NSAAConfig::TEXT_DOMAIN);
         $newcols['dow'] = __('Meeting Day', NSAAConfig::TEXT_DOMAIN);
         $newcols['time'] = __('Meeting Time', NSAAConfig::TEXT_DOMAIN);
         $newcols['legend'] = __('Meeting Legend', NSAAConfig::TEXT_DOMAIN);
@@ -690,6 +696,9 @@ class NSAAMeeting {
         } else if ('zoomlink' === $column_name) {
             $zoomlink = $meeting_data['zoomlink'];
             echo $zoomlink;
+        } else if ('zoomandinperson' === $column_name) {
+            $zoomandinperson = $meeting_data['zoomandinperson'];
+            echo ('1' === $zoomandinperson) ? 'YES' : '';
         } else if ('city' === $column_name) {
             if (0 === count(self::$_cities)) {
                 self::$_cities = NSAACity::getCities();

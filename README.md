@@ -5,7 +5,7 @@
 * Tags: options, wedepohl engineering
 * Requires at least: 4.7 or higher
 * Tested up to: 5.3.2
-* Stable tag: 0.1.8
+* Stable tag: 0.1.11
 * License: [GPLv3 or later](https://www.gnu.org/licenses/gpl-3.0.html)
 
 ### Description
@@ -34,6 +34,19 @@ composer dump
 ### Screenshots
 
 ### Changelog
+
+###### 0.1.11 2020-05-26
+* Enhancement: Added ability to have both in person and online meetings
+
+###### 0.1.10 2020-04-05
+* FIX: Zoom links broke Google Maps
+* Enhancement: Added Google Maps to all meeting pages
+
+###### 0.1.9 2020-04-05
+* Enhancement: Ability to have passwords and custom links for zoom meetings
+
+###### 2020-03-21
+* Enhancement: Ability to have online meetings
 
 ###### 0.1.8 2020-01-26
 * FIX: Commented out disabling REST API since Contact Form 7 requires it
