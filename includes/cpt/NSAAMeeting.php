@@ -387,13 +387,13 @@ class NSAAMeeting {
         <label for="location">Location: </label>
         <input type="text" id="location" name="location" value="<?php echo ($meeting_data['location']); ?>" class="widefat", placeholder='Church/AlAno Club/Etc.'><br /><br />
 
-        <label for="address">Street Address <small>(required)</small>: </label>
-        <input type="text" id="address" name="address" required value="<?php echo ($meeting_data['address']); ?>" class="widefat", placeholder='Street Address'><br /><br />
+        <label for="address">Street Address: </label>
+        <input type="text" id="address" name="address" value="<?php echo ($meeting_data['address']); ?>" class="widefat", placeholder='Street Address'><br /><br />
 
-        <label for="city">City <small>(required)</small>: </label>
+        <label for="city">City: </label>
         <?php
         self::$_cities = NSAACity::getCities();
-        $html = '<select name="city" id="city" required class="widefat">';
+        $html = '<select name="city" id="city" class="widefat"><option value="-1">Select a City</option>';
         foreach (self::$_cities as $id => $city) {
             $selected = '';
             if ($meeting_data['city'] === $id) {
@@ -703,7 +703,11 @@ class NSAAMeeting {
             if (0 === count(self::$_cities)) {
                 self::$_cities = NSAACity::getCities();
             }
-            echo self::$_cities[$meeting_data['city']];
+            if ($meeting_data['city']) {
+                echo self::$_cities[$meeting_data['city']];
+            } else {
+                echo '';
+            }
         } else if ('dow' === $column_name) {
             $dow = '';
             if (isset($meeting_data['dow'])) {

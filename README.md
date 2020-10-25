@@ -5,7 +5,7 @@
 * Tags: options, wedepohl engineering
 * Requires at least: 4.7 or higher
 * Tested up to: 5.3.2
-* Stable tag: 0.1.11
+* Stable tag: 0.1.12
 * License: [GPLv3 or later](https://www.gnu.org/licenses/gpl-3.0.html)
 
 ### Description
@@ -34,6 +34,9 @@ composer dump
 ### Screenshots
 
 ### Changelog
+
+###### 0.1.12 2020-10-25
+* Enhancement: Ability to have no address (won't display Google Maps Link)
 
 ###### 0.1.11 2020-05-26
 * Enhancement: Added ability to have both in person and online meetings

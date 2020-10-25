@@ -280,10 +280,15 @@ class NSAAShortcodes {
             $zoom    = $address;
         } else {
             // Get all the information to display
-            $city = (isset($cities[$city_id]) ? $cities[$city_id] . ', BC' : '');
-            $address = $location . $meeting_data['address'] . (('' === $city) ? '' : ', ' . $city);
-            if ( '1' === $meeting_data['zoomandinperson']) {
-                $zoom = $this->createZoomLink($meeting_data);
+            if ('' !== trim($location) && '' !== trim($meeting_data['address']) && $city_id > -1) {
+                $city = (isset($cities[$city_id]) ? $cities[$city_id] . ', BC' : '');
+                $address = $location . $meeting_data['address'] . (('' === $city) ? '' : ', ' . $city);
+                if ('1' === $meeting_data['zoomandinperson']) {
+                    $zoom = $this->createZoomLink($meeting_data);
+                }
+            } else {
+                $city = '';
+                $address = '';
             }
         }
 
@@ -302,7 +307,7 @@ class NSAAShortcodes {
         $settings = new NSAASettings();
         $wantgooglemaps = $settings->get_options('use_google_maps');
 
-        if (1 == $wantgooglemaps && $zoom !== $address) {
+        if (1 == $wantgooglemaps && '' !== $address && $zoom !== $address) {
             $link = 'https://maps.google.com/?q=' . $address;
             $html .= '<a href="' . $link . '" target="_blank" title="View in Map">View in Map</a>';
         }
@@ -351,8 +356,10 @@ class NSAAShortcodes {
         $city = '';
         foreach( $meetings as $meeting ) {
             if( $city !== $meeting['city'] ) {
-                $city =  $meeting['city'];
-                $html .= '<h3>' . ((isset( $cities[$city] )) ? strtoupper( $cities[$city] ) : '') . '</h3>';
+                if ($meeting['city'] > -1) {
+                    $city =  $meeting['city'];
+                    $html .= '<h3>' . ((isset( $cities[$city] )) ? strtoupper( $cities[$city] ) : '') . '</h3>';
+                }
             }
             $legend_str = '';
             foreach( $meeting['legend'] as $value ) {
@@ -374,7 +381,7 @@ class NSAAShortcodes {
                 $html .= $this->createZoomLink($meeting);
                 $html .= '<br>';
             } else {
-                $location = ('' === $meeting['location']) ? '' : $meeting['location'] . ', ';
+                $location = ('' === trim($meeting['location'])) ? '' : trim($meeting['location']) . ', ';
                 $html .= $location . ' ' . $meeting['address'] . '<br />';
                 $html .= (('' === $meeting['additional']) ? '' : '<strong>' . nl2br($meeting['additional']) . '</strong><br />');
 
@@ -382,7 +389,7 @@ class NSAAShortcodes {
                 $settings = new NSAASettings();
                 $wantgooglemaps = $settings->get_options('use_google_maps');
 
-                if (1 == $wantgooglemaps) {
+                if (1 == $wantgooglemaps && '' !== $location && '' !== trim($meeting['address']) && $meeting['city'] > -1) {
                     $link = 'https://maps.google.com/?q=' . $location . ' ' . $meeting['address'] . ', ' . $cities[$city];
                     $html .= '<a href="' . $link . '" target="_blank" title="View in Map">View in Map</a>';
                 }
@@ -484,8 +491,10 @@ class NSAAShortcodes {
                     $zoom = $html;
                     $html .= '<br>';
                 } else {
-                    $location  = ('' === $meeting['location']) ? '' : $meeting['location'] . ', ';
-                    $html .= $location . ' ' . $meeting['address'] . ', ' . $cities[$meeting['city']] . '<br />';
+                    if ('' !== trim($meeting['location']) && '' !== trim($meeting['address']) && $meeting['city'] > -1) {
+                        $location  = ('' === $meeting['location']) ? '' : $meeting['location'] . ', ';
+                        $html .= $location . ' ' . $meeting['address'] . ', ' . $cities[$meeting['city']] . '<br />';
+                    }
                 }
                 $html .= (('' === $meeting['additional']) ? '' : '<strong>' . nl2br($meeting['additional']) . '</strong><br />');
 
@@ -493,7 +502,7 @@ class NSAAShortcodes {
                 $settings = new NSAASettings();
                 $wantgooglemaps = $settings->get_options('use_google_maps');
 
-                if (1 == $wantgooglemaps && '' === $zoom) {
+                if (1 == $wantgooglemaps && $meeting['city'] > -1 && '' === $zoom) {
                     $link = 'https://maps.google.com/?q=' . $location . ' ' . $meeting['address'] . ', ' . $cities[$meeting['city']];
                     $html .= '<a href="' . $link . '" target="_blank" title="View in Map">View in Map</a>';
                 }
@@ -543,14 +552,15 @@ class NSAAShortcodes {
                 default:
                     $monthly_str = '';
             }
-            $location  = ('' === $meeting['location']) ? '' : $meeting['location'] . ', ';
+            $location  = ('' === trim($meeting['location'])) ? '' : $meeting['location'] . ', ';
             $html .= '<p><a href="' . esc_url( get_the_permalink( $meeting['id'] ) ) . '" title="Visit ' . $meeting['name'] . '">' . strtoupper( $meeting['name'] ) . '</a> - ' . $monthly_str . $dow . ' of each month @ ' . $meeting['time'] . '<br />';
             if ('' !== $meeting['zoom']) {
                 $html .= $this->createZoomLink($meeting);
                 $html .= '<br>';
             } else {
-                $html .= $location . ' ' . $meeting['address'] . ', ' . $cities[$meeting['city']] . '<br />';
-                
+                if ('' !== trim($location) && '' !== trim($meeting['address']) && $meeting['city'] > -1) {
+                    $html .= $location . ' ' . $meeting['address'] . ', ' . $cities[$meeting['city']] . '<br />';
+                }
             }
             $html .= (('' === $meeting['additional']) ? '' : '<strong>' . nl2br($meeting['additional']) . '</strong><br />');
 
@@ -558,7 +568,7 @@ class NSAAShortcodes {
             $settings = new NSAASettings();
             $wantgooglemaps = $settings->get_options('use_google_maps');
 
-            if (1 == $wantgooglemaps && '' === $meeting['zoom']) {
+            if (1 == $wantgooglemaps && $meeting['city'] > -1 && '' === $meeting['zoom']) {
                 $link = 'https://maps.google.com/?q=' . $location . ' ' . $meeting['address'] . ', ' . $cities[$meeting['city']];
                 $html .= '<a href="' . $link . '" target="_blank" title="View in Map">View in Map</a>';
             }
@@ -742,7 +752,7 @@ class NSAAShortcodes {
                         $settings = new NSAASettings();
                         $wantgooglemaps = $settings->get_options('use_google_maps');
 
-                        if (1 == $wantgooglemaps) {
+                        if (1 == $wantgooglemaps && $meeting['city'] > -1) {
                             $link = 'https://maps.google.com/?q=' . $location . ' ' . $meeting['address'] . ', ' . $city;
                             $html .= '<a href="' . $link . '" target="_blank" title="View in Map">View in Map</a>';
                         }

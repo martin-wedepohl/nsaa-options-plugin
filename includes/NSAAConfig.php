@@ -2,11 +2,11 @@
 namespace NSAAOptions;
 defined( 'ABSPATH' ) or die( '' );
 class NSAAConfig {
-    const VERSION                   = '0.1.11';
+    const VERSION                   = '0.1.12';
     
-	const MINIMUM_WORDPRESS_VERSION = '4.9';
+    const MINIMUM_WORDPRESS_VERSION = '4.9';
     const MINIMUM_PHP_VERSION       = '5.6';
-	const MINIMUM_ELEMENTOR_VERSION = '2.0.0';
+    const MINIMUM_ELEMENTOR_VERSION = '2.0.0';
     
     const TEXT_DOMAIN               = 'nsaa-options';
     
