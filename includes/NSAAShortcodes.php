@@ -47,7 +47,7 @@ class NSAAShortcodes {
 			}
 			$html .= "<li>{$post['name']} {$additional} - {$link}</li>";
 			if ( ! empty( $post['thumbnail'] ) ) {
-				$html .= '<a href="' . esc_url( $post['thumbnail_url'] ) . '" rel="lightbox" title="View Larger Image">' . $post['thumbnail'] . '</a>';
+				$html .= '<a class="img-block" href="' . esc_url( $post['thumbnail_url'] ) . '" rel="lightbox" title="View Larger Image">' . $post['thumbnail'] . '</a>';
 			}
 		}
 		$html .= '</ul></li></ul>';
@@ -84,7 +84,7 @@ class NSAAShortcodes {
 			$html .= nl2br( $msg ) . '</li>';
 
 			if ( ! empty( $post['thumbnail'] ) ) {
-				$html .= '<a href="' . esc_url( $post['thumbnail_url'] ) . '" rel="lightbox" title="View Larger Image">' . $post['thumbnail'] . '</a>';
+				$html .= '<a class="img-block" href="' . esc_url( $post['thumbnail_url'] ) . '" rel="lightbox" title="View Larger Image">' . $post['thumbnail'] . '</a>';
 			}
 		}
 		$html .= '</ul></li></ul>';
@@ -154,6 +154,7 @@ class NSAAShortcodes {
 		<ul>
 			<li><?php esc_html_e( 'ID="service-opportunities" - Display all the service opportunities available in the district.', 'nsas-options' ); ?></li>
 			<li><?php esc_html_e( 'ID="meeting-changes" - Display all the meeting changes (sorted by date).', 'nsas-options' ); ?></li>
+			<li><?php esc_html_e( 'ID="news" - Display all the news items (sorted by date).', 'nsas-options' ); ?></li>
 			<li><?php esc_html_e( 'ID="cancelled-meetings" - Display all the cancelled meeetings (sorted by date).', 'nsas-options' ); ?></li>
 			<li><?php esc_html_e( 'ID="added-meetings" - Display all the additional meeetings (sorted by date).', 'nsas-options' ); ?></li>
 			<li><?php esc_html_e( 'ID="group-cakes" - Display all the upcoming cakes (sorted by date).', 'nsas-options' ); ?></li>
@@ -954,7 +955,7 @@ class NSAAShortcodes {
 				foreach ( $posts as $id => $post ) {
 					$msg = "<li><div><strong>{$post['title']}</strong></div>";
 					if ( ! empty( $post['thumbnail'] ) ) {
-						$msg .= '<a href="' . esc_url( $post['thumbnail_url'] ) . '" rel="lightbox" title="View Larger Image">' . $post['thumbnail'] . '</a>';
+						$msg .= '<a class="img-block" href="' . esc_url( $post['thumbnail_url'] ) . '" rel="lightbox" title="View Larger Image">' . $post['thumbnail'] . '</a>';
 					}
 					$msg  .= "{$post['content']}</li>";
 					$html .= nl2br( $msg );
@@ -965,7 +966,24 @@ class NSAAShortcodes {
 				}
 				break;
 
-			case 'cancelled-meetings':
+			case 'news':
+				$html  = '<ul>';
+				$posts = NSAANews::getNews();
+				foreach ( $posts as $id => $post ) {
+					$msg = "<li><div><strong>{$post['title']}</strong></div>";
+					if ( ! empty( $post['thumbnail'] ) ) {
+						$msg .= '<a class="img-block" href="' . esc_url( $post['thumbnail_url'] ) . '" rel="lightbox" title="View Larger Image">' . $post['thumbnail'] . '</a>';
+					}
+					$msg  .= "{$post['content']}</li>";
+					$html .= nl2br( $msg );
+				}
+				$html .= '</ul>';
+				if ( '<ul></ul>' === $html ) {
+					$html = '';
+				}
+				break;
+	
+				case 'cancelled-meetings':
 				$date  = '';
 				$html  = '<ul>';
 				$posts = NSAACancelledMeetings::getCancelled();

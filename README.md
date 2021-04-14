@@ -35,8 +35,12 @@ composer dump
 
 ### Changelog
 
+###### 0.1.14 2021-04-13
+* Enhancement: Added News Items
+
 ###### 0.1.13 2021-04-13
-* Enhancement: Ability to have no address (won't display Google Maps Link)
+* FIX: Correct Zoom ID format
+* Enhancement: Allow Meeting Changes to have a thumbnail
 
 ###### 0.1.12 2020-10-25
 * Enhancement: Ability to have no address (won't display Google Maps Link)

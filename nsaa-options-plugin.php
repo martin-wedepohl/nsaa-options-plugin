@@ -3,7 +3,7 @@
 Plugin Name: North Shore AA Options Plugin
 Plugin URI:
 Description: Optional information used in North Shore AA website
-Version: 0.1.13
+Version: 0.1.14
 Author: Martin Wedepohl
 Author URI: https://wedepohlengineering.com
 License: GPLv3 or later
@@ -19,6 +19,7 @@ use NSAAOptions\NSAAConfig;
 use NSAAOptions\NSAASettings;
 use NSAAOptions\NSAAShortocdes;
 use NSAAOptions\NSAAServiceOp;
+use NSAAOptions\NSAANews;
 
 defined( 'ABSPATH' ) || die( '' );
 
@@ -116,17 +117,23 @@ class NSAAOptions {
 		add_filter( 'comments_array', '__return_empty_array', 10, 2 );
 
 		// Remove comments page in menu and discussion submenu page.
-		add_action( 'admin_menu', function () {
-			remove_menu_page( 'edit-comments.php' );
-			remove_submenu_page( 'options-general.php', 'options-discussion.php' );
-		});
+		add_action(
+			'admin_menu',
+			function () {
+				remove_menu_page( 'edit-comments.php' );
+				remove_submenu_page( 'options-general.php', 'options-discussion.php' );
+			}
+		);
 
 		// Remove comments links from admin bar.
-		add_action('init', function () {
-			if ( is_admin_bar_showing() ) {
-				remove_action( 'admin_bar_menu', 'wp_admin_bar_comments_menu', 60 );
+		add_action(
+			'init',
+			function () {
+				if ( is_admin_bar_showing() ) {
+					remove_action( 'admin_bar_menu', 'wp_admin_bar_comments_menu', 60 );
+				}
 			}
-		});
+		);
 
 		// Clean up code in header.
 		remove_action( 'wp_head', 'rsd_link' );                                   // Remove "Really Simple Discovery" tag; not needed if XML-RPC is disabled.
@@ -157,6 +164,7 @@ class NSAAOptions {
 		$this->_events    = new NSAAEvents();
 		$this->_gratitude = new NSAAGratitude();
 		new NSAAMeetingChanges();
+		new NSAANews();
 		new NSAAServiceOp();
 	}
 
