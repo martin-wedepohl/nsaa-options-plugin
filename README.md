@@ -4,8 +4,8 @@
 * Contributors: [martinwedepohl](https://en.gravatar.com/martinwedepohl) 
 * Tags: options, wedepohl engineering
 * Requires at least: 4.7 or higher
-* Tested up to: 5.3.2
-* Stable tag: 0.1.12
+* Tested up to: 5.7
+* Stable tag: 0.1.13
 * License: [GPLv3 or later](https://www.gnu.org/licenses/gpl-3.0.html)
 
 ### Description
@@ -34,6 +34,9 @@ composer dump
 ### Screenshots
 
 ### Changelog
+
+###### 0.1.13 2021-04-13
+* Enhancement: Ability to have no address (won't display Google Maps Link)
 
 ###### 0.1.12 2020-10-25
 * Enhancement: Ability to have no address (won't display Google Maps Link)
