@@ -35,6 +35,9 @@ composer dump
 
 ### Changelog
 
+###### 0.1.15 2021-04-14
+* FIX: Added missing instructions
+
 ###### 0.1.14 2021-04-13
 * Enhancement: Added News Items
 
