@@ -65,12 +65,12 @@ class NSAAShortcodes {
 	 */
 	private static function createEvents() : string {
 		$date  = '';
-		$html  = '<ul>';
+		$html  = '<ul class="nsaa-events">';
 		$posts = NSAAEvents::getEvents();
 		foreach ( $posts as $id => $post ) {
 			if ( $date !== $post['sdate'] ) {
 				$date = date( 'l F jS, Y', strtotime( $post['sdate'] ) );
-				if ( '<ul>' === $html ) {
+				if ( '<ul class="nsaa-events">' === $html ) {
 					$html .= "<li>{$date}<ul>";
 				} else {
 					$html .= "</ul></li><li>{$date}<ul>";
@@ -87,9 +87,9 @@ class NSAAShortcodes {
 				$html .= '<a class="img-block" href="' . esc_url( $post['thumbnail_url'] ) . '" rel="lightbox" title="View Larger Image">' . $post['thumbnail'] . '</a>';
 			}
 		}
-		$html .= '</ul></li></ul>';
+		$html .= '</ul>';
 
-		if ( '<ul></ul></li></ul>' === $html ) {
+		if ( '<ul class="nsaa-events"></ul>' === $html ) {
 			$html = '';
 		}
 

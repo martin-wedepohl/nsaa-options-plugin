@@ -3,7 +3,7 @@
 Plugin Name: North Shore AA Options Plugin
 Plugin URI:
 Description: Optional information used in North Shore AA website
-Version: 0.1.15
+Version: 0.1.16
 Author: Martin Wedepohl
 Author URI: https://wedepohlengineering.com
 License: GPLv3 or later
@@ -16,6 +16,7 @@ namespace NSAAOptions;
 use NSAAOptions\NSAAMeeting;
 use NSAAOptions\NSAADebug;
 use NSAAOptions\NSAAConfig;
+use NSAAOptions\NSAACake;
 use NSAAOptions\NSAASettings;
 use NSAAOptions\NSAAShortocdes;
 use NSAAOptions\NSAAServiceOp;
