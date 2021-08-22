@@ -411,11 +411,13 @@ class NSAAShortcodes {
 			$html .= '<p>' . $meeting['time'] . ' - <a href="' . esc_url( get_the_permalink( $meeting['id'] ) ) . '" title="Visit ' . $meeting['name'] . '">' . strtoupper( $meeting['name'] ) . '</a>' . $legend_str . '<br />';
 			if ( '' !== $meeting['zoom'] && '1' !== $meeting['zoomandinperson'] ) {
 				$html .= $this->createZoomLink( $meeting );
-				$html .= '<br>';
 			} else {
 				$location = ( '' === trim( $meeting['location'] ) ) ? '' : trim( $meeting['location'] ) . ', ';
-				$html    .= $location . ' ' . $meeting['address'] . '<br />';
-				$html    .= ( ( '' === $meeting['additional'] ) ? '' : '<strong>' . nl2br( $meeting['additional'] ) . '</strong><br />' );
+				$html    .= $location . ' ' . $meeting['address'];
+
+				if ( '' !== $location && '' !== $meeting['address'] ) {
+					$html .= '<br>';
+				}
 
 				// Only display the link if we allow it.
 				$settings       = new NSAASettings();
@@ -426,9 +428,10 @@ class NSAAShortcodes {
 					$html .= '<a href="' . $link . '" target="_blank" title="View in Map">View in Map</a>';
 				}
 				if ( '1' === $meeting['zoomandinperson'] ) {
-					$html .= '<br>Also ' . $this->createZoomLink( $meeting ) . '<br>';
+					$html .= '<br>Also ' . $this->createZoomLink( $meeting );
 				}
 			}
+			$html    .= ( ( '' === $meeting['additional'] ) ? '' : '<br><strong>' . nl2br( $meeting['additional'] ) . '</strong><br>' );
 		}
 
 		do_action( 'nsaa_after_get_meetings' );
