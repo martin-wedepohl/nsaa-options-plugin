@@ -415,17 +415,13 @@ class NSAAShortcodes {
 				$location = ( '' === trim( $meeting['location'] ) ) ? '' : trim( $meeting['location'] ) . ', ';
 				$html    .= $location . ' ' . $meeting['address'];
 
-				if ( '' !== $location && '' !== $meeting['address'] ) {
-					$html .= '<br>';
-				}
-
 				// Only display the link if we allow it.
 				$settings       = new NSAASettings();
 				$wantgooglemaps = $settings->get_options( 'use_google_maps' );
 
-				if ( 1 === intval( $wantgooglemaps ) && '' !== $location && '' !== trim( $meeting['address'] ) && $meeting['city'] > -1 ) {
+				if ( 1 === intval( $wantgooglemaps ) && '' !== $location && '' !== trim( $meeting['address'] ) ) {
 					$link  = 'https://maps.google.com/?q=' . $location . ' ' . $meeting['address'] . ', ' . $cities[ $city ];
-					$html .= '<a href="' . $link . '" target="_blank" title="View in Map">View in Map</a>';
+					$html .= '<br><a href="' . $link . '" target="_blank" title="View in Map">View in Map</a>';
 				}
 				if ( '1' === $meeting['zoomandinperson'] ) {
 					$html .= '<br>Also ' . $this->createZoomLink( $meeting );
@@ -816,11 +812,13 @@ class NSAAShortcodes {
 
 					if ( '' !== $meeting['zoom'] && '1' !== $meeting['zoomandinperson'] ) {
 						$html .= $this->createZoomLink( $meeting );
-						$html .= '<br>';
 					} else {
 						$location = ( '' === $meeting['location'] ) ? '' : $meeting['location'] . ', ';
-						$html    .= $location . ' ' . $meeting['address'] . ', ' . $city . '<br />';
-						$html    .= ( ( '' === $meeting['additional'] ) ? '' : '<strong>' . nl2br( $meeting['additional'] ) . '</strong><br />' );
+						$html    .= $location . ' ' . $meeting['address'];
+						if ('' !== $meeting['location'] ) {
+							$html .= ', ';
+						}
+						$html .= $city;
 
 						// Only display the link if we allow it.
 						$settings       = new NSAASettings();
@@ -828,12 +826,13 @@ class NSAAShortcodes {
 
 						if ( 1 === intval( $wantgooglemaps ) && $meeting['city'] > -1 ) {
 							$link  = 'https://maps.google.com/?q=' . $location . ' ' . $meeting['address'] . ', ' . $city;
-							$html .= '<a href="' . $link . '" target="_blank" title="View in Map">View in Map</a>';
+							$html .= '<br><a href="' . $link . '" target="_blank" title="View in Map">View in Map</a>';
 						}
 						if ( '1' === $meeting['zoomandinperson'] && '' !== $meeting['zoom'] ) {
-							$html .= '<br>Also ' . $this->createZoomLink( $meeting ) . '<br>';
+							$html .= '<br>Also ' . $this->createZoomLink( $meeting ) . '';
 						}
 					}
+					$html    .= ( ( '' === $meeting['additional'] ) ? '' : '<br><strong>' . nl2br( $meeting['additional'] ) . '</strong><br />' );
 
 					if ( '' !== $gratitudenight && true === $after ) {
 						$html .= '<strong>***** ' . strtoupper( $meeting['name'] ) . ' Gratitude Meeting *****</strong> @ ' . $gratitudenight['gtime'] . ' ' . $gratitudenight['additional'];
