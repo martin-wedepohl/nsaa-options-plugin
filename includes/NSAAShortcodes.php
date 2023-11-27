@@ -472,7 +472,6 @@ class NSAAShortcodes {
 				$meeting = $meeting[0];
 				$dow     = NSAAMeeting::getDOW( $meeting['dow'] );
 				$monthly = $meeting['monthly'];
-
 				switch ( $monthly ) {
 					case '1':
 						$monthly_str = 'first ';
@@ -546,6 +545,11 @@ class NSAAShortcodes {
 					if ( $meeting_date_ts >= $today_ts ) {
 						$found = true;
 					} else {
+						$month_num++;
+						while ( true === in_array( $month_num, $meeting['notheld'] ) ) {
+							$year      = ( 12 === intval( $month_num ) ) ? $year + 1 : $year;
+							$month_num = ( 12 === intval( $month_num ) ) ? 1 : ( $month_num + 1 );
+						}
 						$year      = ( 12 === intval( $month_num ) ) ? $year + 1 : $year;
 						$month_num = ( 12 === intval( $month_num ) ) ? 1 : ( $month_num + 1 );
 					}
