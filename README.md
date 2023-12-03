@@ -5,7 +5,7 @@
 * Tags: options, wedepohl engineering
 * Requires at least: 4.7 or higher
 * Tested up to: 5.7
-* Stable tag: 0.1.13
+* Stable tag: 0.1.20
 * License: [GPLv3 or later](https://www.gnu.org/licenses/gpl-3.0.html)
 
 ### Description
@@ -34,6 +34,27 @@ composer dump
 ### Screenshots
 
 ### Changelog
+
+###### Date: 0.1.20 2023-12-03
+ 
+FIX: Service meeting not held in December didn't work correctly ** NEW FIX **
+
+###### Date: 0.1.19 2023-11-26
+ 
+FIX: Service meeting not held in December didn't work correctly.
+
+###### Date: 0.1.18 2021-08-22
+ 
+ERROR: Additional information was only displayed if there was an address
+
+###### Date: 0.1.17 2021-08-22
+ 
+ERROR: Additional data only displayed if there was a meeting address
+Removed extra blank lines in meeting display
+
+###### Date: 0.1.16 2021-08-11
+ 
+Fix events so they are one on top of the other
 
 ###### 0.1.15 2021-04-14
 * FIX: Added missing instructions

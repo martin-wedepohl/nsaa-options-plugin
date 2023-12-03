@@ -498,6 +498,12 @@ class NSAAShortcodes {
 					while ( true === in_array( $month_num, $meeting['notheld'] ) ) {
 						$year      = ( 12 === intval( $month_num ) ) ? $year + 1 : $year;
 						$month_num = ( 12 === intval( $month_num ) ) ? 1 : ( $month_num + 1 );
+						if ('5' === $monthly) {
+							// Issue with last of month
+							$month_num++;
+							$year      = ( 13 === intval( $month_num ) ) ? $year + 1 : $year;
+							$month_num = ( 13 === intval( $month_num ) ) ? 1 : $month_num;
+						}
 					}
 
 					switch ( $month_num ) {
@@ -545,11 +551,6 @@ class NSAAShortcodes {
 					if ( $meeting_date_ts >= $today_ts ) {
 						$found = true;
 					} else {
-						$month_num++;
-						while ( true === in_array( $month_num, $meeting['notheld'] ) ) {
-							$year      = ( 12 === intval( $month_num ) ) ? $year + 1 : $year;
-							$month_num = ( 12 === intval( $month_num ) ) ? 1 : ( $month_num + 1 );
-						}
 						$year      = ( 12 === intval( $month_num ) ) ? $year + 1 : $year;
 						$month_num = ( 12 === intval( $month_num ) ) ? 1 : ( $month_num + 1 );
 					}

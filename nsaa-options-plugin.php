@@ -3,7 +3,7 @@
 Plugin Name: North Shore AA Options Plugin
 Plugin URI:
 Description: Optional information used in North Shore AA website
-Version: 0.1.19
+Version: 0.1.20
 Author: Martin Wedepohl
 Author URI: https://wedepohlengineering.com
 License: GPLv3 or later
